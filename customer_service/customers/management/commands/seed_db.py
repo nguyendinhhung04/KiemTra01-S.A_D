@@ -48,7 +48,7 @@ class Command(BaseCommand):
                             'name': c_data['name'],
                             'phone': c_data['phone'],
                             'email': c_data['email'],
-                            'password': c_data['password'] # Storing as plain text because the model uses a simple CharField for it.
+                            'password': c_data['password']
                         }
                     )
                     
@@ -57,14 +57,15 @@ class Command(BaseCommand):
                     else:
                         self.stdout.write(f"Updated customer: {customer.username}")
 
-                    # Create Cart for each customer
+                    # Ensure each customer has their own unique cart
                     cart, cart_created = Cart.objects.get_or_create(customer=customer)
                     if cart_created:
-                        self.stdout.write(f"Created cart for: {customer.username}")
+                        self.stdout.write(f"Created new cart for: {customer.username}")
+                    else:
+                        self.stdout.write(f"Using existing cart for: {customer.username}")
 
-                    # Add some sample cart items
-                    # These item_ids are hypothetical IDs from other microservices
-                    if cart_created:
+                    # Add some sample cart items to the cart if it was just created or if it's empty
+                    if cart_created or cart.items.count() == 0:
                         CartItem.objects.create(
                             cart=cart,
                             item_id=1,
@@ -73,7 +74,7 @@ class Command(BaseCommand):
                         )
                         CartItem.objects.create(
                             cart=cart,
-                            item_id=10,
+                            item_id=1, # Sample laptop ID 1
                             quantity=2,
                             product_type='LAPTOP'
                         )

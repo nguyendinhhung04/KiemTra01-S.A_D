@@ -11,6 +11,7 @@
             --text: #111827;
             --card-bg: white;
             --secondary: #6366f1;
+            --danger: #ef4444;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -32,7 +33,7 @@
         .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
         .user-info { display: flex; align-items: center; gap: 1rem; }
         .logout-btn {
-            background: #ef4444;
+            background: var(--danger);
             color: white;
             border: none;
             padding: 0.5rem 1rem;
@@ -44,16 +45,22 @@
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
         }
-        .welcome-card {
+        @media (max-width: 1024px) {
+            main { grid-template-columns: 1fr; }
+        }
+        .welcome-card, .cart-card {
             background: white;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 1rem;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
         }
         .section-title {
-            font-size: 1.875rem;
+            font-size: 1.5rem;
             font-weight: bold;
             margin-bottom: 1.5rem;
             color: var(--primary);
@@ -62,14 +69,14 @@
         }
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 1.5rem;
             margin-bottom: 3rem;
         }
         .product-card {
             background: var(--card-bg);
             border-radius: 0.75rem;
-            padding: 1.5rem;
+            padding: 1.25rem;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
@@ -80,18 +87,18 @@
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
         }
         .product-name {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
         .product-price {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: var(--primary);
             font-weight: bold;
-            margin: 1rem 0;
+            margin: 0.75rem 0;
         }
         .product-details {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: #6b7280;
             flex-grow: 1;
         }
@@ -107,18 +114,59 @@
             margin-top: 1rem;
             transition: background 0.2s;
         }
-        .add-to-cart:hover {
-            background: var(--secondary);
-        }
+        .add-to-cart:hover { background: var(--secondary); }
         .badge {
             display: inline-block;
             padding: 0.25rem 0.5rem;
             border-radius: 9999px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             background: #e0e7ff;
             color: #4338ca;
             margin-bottom: 0.5rem;
+        }
+
+        /* Cart Styles */
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-info { flex-grow: 1; }
+        .cart-item-name { font-weight: 600; font-size: 0.9rem; }
+        .cart-item-price { color: var(--primary); font-size: 0.85rem; }
+        .cart-controls { display: flex; align-items: center; gap: 0.5rem; }
+        .qty-btn {
+            background: #e5e7eb;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .remove-btn {
+            color: var(--danger);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        .cart-total {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e5e7eb;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -131,33 +179,47 @@
         </div>
     </nav>
     <main>
-        <div class="welcome-card">
-            <h1>Welcome Home!</h1>
-            <p>You have successfully logged in to your account.</p>
-            <div id="userDetails"></div>
+        <div class="content-area">
+            <div class="welcome-card">
+                <h1>Welcome Home!</h1>
+                <div id="userDetails"></div>
+            </div>
+
+            <h2 class="section-title">Laptops</h2>
+            <div id="laptopList" class="product-grid">
+                <p>Loading laptops...</p>
+            </div>
+
+            <h2 class="section-title">Mobiles</h2>
+            <div id="mobileList" class="product-grid">
+                <p>Loading mobiles...</p>
+            </div>
         </div>
 
-        <h2 class="section-title">Laptops</h2>
-        <div id="laptopList" class="product-grid">
-            <p>Loading laptops...</p>
-        </div>
-
-        <h2 class="section-title">Mobiles</h2>
-        <div id="mobileList" class="product-grid">
-            <p>Loading mobiles...</p>
-        </div>
+        <aside>
+            <div class="cart-card">
+                <h2 class="section-title" style="font-size: 1.25rem;">Shopping Cart</h2>
+                <div id="cartItems">
+                    <p>Loading cart...</p>
+                </div>
+                <div id="cartTotal" class="cart-total">
+                    <span>Total:</span>
+                    <span id="totalAmount">$0.00</span>
+                </div>
+            </div>
+        </aside>
     </main>
 
     <script>
         const user = JSON.parse(localStorage.getItem('user'));
+        let productsCache = { LAPTOP: {}, MOBILE: {} };
+
         if (!user) {
             window.location.href = '/api/ui/login/';
         } else {
             document.getElementById('userNameDisplay').innerText = `Hello, ${user.name || user.username}`;
             document.getElementById('userDetails').innerHTML = `
-                <p><strong>Username:</strong> ${user.username}</p>
-                <p><strong>Email:</strong> ${user.email}</p>
-                <p><strong>Phone:</strong> ${user.phone}</p>
+                <p><strong>Username:</strong> ${user.username} | <strong>Email:</strong> ${user.email}</p>
             `;
         }
 
@@ -167,23 +229,26 @@
                 const laptopRes = await fetch('http://localhost:8001/laptop/api/laptops/');
                 if (laptopRes.ok) {
                     const laptops = await laptopRes.json();
+                    laptops.forEach(l => productsCache.LAPTOP[l.id] = l);
                     renderProducts('laptopList', laptops, 'LAPTOP');
                 } else {
-                    document.getElementById('laptopList').innerHTML = '<p>Error loading laptops or service unavailable.</p>';
+                    document.getElementById('laptopList').innerHTML = '<p>Error loading laptops.</p>';
                 }
 
                 // Fetch Mobiles
                 const mobileRes = await fetch('http://localhost:8002/mobile/api/mobiles/');
                 if (mobileRes.ok) {
                     const mobiles = await mobileRes.json();
+                    mobiles.forEach(m => productsCache.MOBILE[m.id] = m);
                     renderProducts('mobileList', mobiles, 'MOBILE');
                 } else {
-                    document.getElementById('mobileList').innerHTML = '<p>Error loading mobiles or service unavailable.</p>';
+                    document.getElementById('mobileList').innerHTML = '<p>Error loading mobiles.</p>';
                 }
+                
+                // After products are cached, fetch cart
+                fetchCart();
             } catch (err) {
                 console.error('Error fetching products:', err);
-                document.getElementById('laptopList').innerHTML = '<p>Service error.</p>';
-                document.getElementById('mobileList').innerHTML = '<p>Service error.</p>';
             }
         }
 
@@ -210,9 +275,91 @@
             `).join('');
         }
 
+        async function fetchCart() {
+            try {
+                const res = await fetch(`/api/carts/${user.cart.id}/`);
+                if (res.ok) {
+                    const cart = await res.json();
+                    renderCart(cart.items);
+                }
+            } catch (err) {
+                console.error('Error fetching cart:', err);
+            }
+        }
+
+        function renderCart(items) {
+            const container = document.getElementById('cartItems');
+            if (!items || items.length === 0) {
+                container.innerHTML = '<p>Your cart is empty.</p>';
+                document.getElementById('totalAmount').innerText = '$0.00';
+                return;
+            }
+
+            let total = 0;
+            container.innerHTML = items.map(item => {
+                const product = productsCache[item.product_type][item.item_id] || { name: 'Unknown Product', price: 0 };
+                const subtotal = product.price * item.quantity;
+                total += subtotal;
+                return `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${product.name}</div>
+                            <div class="cart-item-price">$${product.price} x ${item.quantity}</div>
+                        </div>
+                        <div class="cart-controls">
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                            <button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('totalAmount').innerText = `$${total.toFixed(2)}`;
+        }
+
         async function addToCart(itemId, productType) {
-            alert(`Adding ${productType} ID ${itemId} to cart... (Feature coming soon)`);
-            // Implementation would use POST /api/cart-items/
+            try {
+                const res = await fetch('/api/cart-items/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cart: user.cart.id,
+                        item_id: itemId,
+                        product_type: productType,
+                        quantity: 1
+                    })
+                });
+                if (res.ok) fetchCart();
+            } catch (err) {
+                console.error('Error adding to cart:', err);
+            }
+        }
+
+        async function updateQuantity(cartItemId, newQty) {
+            if (newQty < 1) return;
+            try {
+                const res = await fetch(`/api/cart-items/${cartItemId}/`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantity: newQty })
+                });
+                if (res.ok) fetchCart();
+            } catch (err) {
+                console.error('Error updating quantity:', err);
+            }
+        }
+
+        async function removeFromCart(cartItemId) {
+            if (!confirm('Remove this item?')) return;
+            try {
+                const res = await fetch(`/api/cart-items/${cartItemId}/`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) fetchCart();
+            } catch (err) {
+                console.error('Error removing item:', err);
+            }
         }
 
         function logout() {
@@ -220,7 +367,6 @@
             window.location.href = '/api/ui/login/';
         }
 
-        // Initialize fetch
         fetchProducts();
     </script>
 </body>

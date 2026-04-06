@@ -45,3 +45,23 @@ class CartViewSet(viewsets.ModelViewSet):
 class CartItemViewSet(viewsets.ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
+
+    def create(self, request, *args, **kwargs):
+        cart_id = request.data.get('cart')
+        item_id = request.data.get('item_id')
+        product_type = request.data.get('product_type')
+        quantity = int(request.data.get('quantity', 1))
+
+        cart_item, created = CartItem.objects.get_or_create(
+            cart_id=cart_id,
+            item_id=item_id,
+            product_type=product_type,
+            defaults={'quantity': quantity}
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+
+        serializer = self.get_serializer(cart_item)
+        return response.Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
