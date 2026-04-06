@@ -78,9 +78,9 @@ WSGI_APPLICATION = 'staff_service.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'kiemtra02'),
+        'NAME': os.environ.get('DB_NAME', 'kiemtra01_staff'),
         'USER': os.environ.get('DB_USER', 'root'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '12345678'),
         'HOST': os.environ.get('DB_HOST', 'host.docker.internal'),
         'PORT': os.environ.get('DB_PORT', '3306'),
     }

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Login</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            color: #1f2937;
+        }
+        .login-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h2 {
+            text-align: center;
+            color: #111827;
+            margin-bottom: 2rem;
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s, ring 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background: var(--primary-hover);
+        }
+        #message {
+            margin-top: 1.25rem;
+            text-align: center;
+            font-size: 0.875rem;
+            min-height: 1.25rem;
+        }
+        .error { color: #dc2626; background: #fee2e2; padding: 0.5rem; border-radius: 0.375rem; }
+        .success { color: #059669; background: #dcfce7; padding: 0.5rem; border-radius: 0.375rem; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Staff Portal</h2>
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter your username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <button id="loginBtn">Sign In</button>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            const btn = document.getElementById('loginBtn');
+            
+            if (!username || !password) {
+                messageDiv.className = 'error';
+                messageDiv.innerText = 'Please fill in all fields.';
+                return;
+            }
+
+            messageDiv.className = '';
+            messageDiv.innerText = 'Authenticating...';
+            btn.disabled = true;
+            btn.innerText = 'Processing...';
+
+            try {
+                const response = await fetch('/api/staffs/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageDiv.className = 'success';
+                    messageDiv.innerText = 'Welcome back, ' + data.staff.name + '! Redirecting...';
+                    // Redirect or handle session here
+                } else {
+                    messageDiv.className = 'error';
+                    messageDiv.innerText = data.error || 'Invalid credentials';
+                }
+            } catch (error) {
+                messageDiv.className = 'error';
+                messageDiv.innerText = 'Connection error. Please try again.';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Sign In';
+            }
+        });
+    </script>
+</body>
+</html>

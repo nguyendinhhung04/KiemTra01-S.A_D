@@ -40,15 +40,15 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  # staff_service:
-  #   build: ./staff_service
-  #   ports:
-  #     - "8004:8000"
-  #   environment:
-  #     - DB_HOST=host.docker.internal
-  #     - DB_PORT=3306
-  #     - DB_NAME=kiemtra01_staff
-  #     - DB_USER=root
-  #     - DB_PASSWORD=12345678
-  #   extra_hosts:
-  #     - "host.docker.internal:host-gateway"
+  staff_service:
+    build: ./staff_service
+    ports:
+      - "8004:8000"
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_PORT=3306
+      - DB_NAME=kiemtra01_staff
+      - DB_USER=root
+      - DB_PASSWORD=12345678
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
