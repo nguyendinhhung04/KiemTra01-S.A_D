@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  laptop_service:
+    build: ./laptop_service
+    ports:
+      - "8001:8000"
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_NAME=kiemtra01_laptop
+      - DB_USER=postgres
+      - DB_PASSWORD=12345678
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mobile_service:
+    build: ./mobile_service
+    ports:
+      - "8002:8000"
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_NAME=kiemtra01_mobile
+      - DB_USER=postgres
+      - DB_PASSWORD=12345678
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  customer_service:
+    build: ./customer_service
+    ports:
+      - "8003:8000"
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_PORT=3306
+      - DB_NAME=kiemtra01_customer
+      - DB_USER=root
+      - DB_PASSWORD=12345678
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # staff_service:
+  #   build: ./staff_service
+  #   ports:
+  #     - "8004:8000"
+  #   environment:
+  #     - DB_HOST=host.docker.internal
+  #     - DB_PORT=3306
+  #     - DB_NAME=kiemtra01_staff
+  #     - DB_USER=root
+  #     - DB_PASSWORD=12345678
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
