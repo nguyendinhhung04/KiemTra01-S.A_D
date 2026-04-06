@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - Customer Service</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
+            --text: #111827;
+            --card-bg: white;
+            --secondary: #6366f1;
+            --danger: #ef4444;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            color: var(--text);
+        }
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { text-decoration: none; color: var(--text); font-weight: 500; }
+        .nav-link:hover { color: var(--primary); }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .cart-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-info { flex-grow: 1; }
+        .cart-item-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem; }
+        .cart-item-type { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+        .cart-item-price { color: var(--primary); font-weight: 600; }
+        .cart-controls { display: flex; align-items: center; gap: 1rem; }
+        .qty-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            width: 32px;
+            height: 32px;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .qty-btn:hover { background: #e5e7eb; }
+        .qty-val { font-weight: 600; width: 20px; text-align: center; }
+        .remove-btn {
+            color: var(--danger);
+            background: #fee2e2;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .remove-btn:hover { background: #fecaca; }
+        .cart-total {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e5e7eb;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5rem;
+        }
+        .empty-cart { text-align: center; padding: 3rem 0; color: #6b7280; }
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: background 0.2s;
+        }
+        .checkout-btn:hover { background: var(--secondary); }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/home/" class="logo">CustomerService</a>
+        <div class="nav-links">
+            <a href="/home/" class="nav-link">Home</a>
+            <a href="/ui/cart/" class="nav-link" style="color: var(--primary);">Cart</a>
+        </div>
+        <div class="user-info">
+            <span id="userNameDisplay">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+    <main>
+        <div class="cart-card">
+            <h1 class="section-title">Your Shopping Cart</h1>
+            <div id="cartItems">
+                <p class="empty-cart">Loading your cart items...</p>
+            </div>
+            <div id="cartSummary" style="display: none;">
+                <div class="cart-total">
+                    <span>Total Amount</span>
+                    <span id="totalAmount">$0.00</span>
+                </div>
+                <button class="checkout-btn" onclick="alert('Checkout feature coming soon!')">Proceed to Checkout</button>
+            </div>
+            <a href="/home/" class="back-link">← Continue Shopping</a>
+        </div>
+    </main>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        let productsCache = { LAPTOP: {}, MOBILE: {} };
+
+        if (!user) {
+            window.location.href = '/login/';
+        } else {
+            document.getElementById('userNameDisplay').innerText = `Hello, ${user.name || user.username}`;
+        }
+
+        async function init() {
+            await fetchProducts();
+            await fetchCart();
+        }
+
+        async function fetchProducts() {
+            try {
+                const [laptopRes, mobileRes] = await Promise.all([
+                    fetch('http://localhost:8001/laptop/api/laptops/'),
+                    fetch('http://localhost:8002/mobile/api/mobiles/')
+                ]);
+
+                if (laptopRes.ok) {
+                    const laptops = await laptopRes.json();
+                    laptops.forEach(l => productsCache.LAPTOP[l.id] = l);
+                }
+                if (mobileRes.ok) {
+                    const mobiles = await mobileRes.json();
+                    mobiles.forEach(m => productsCache.MOBILE[m.id] = m);
+                }
+            } catch (err) {
+                console.error('Error fetching products for cache:', err);
+            }
+        }
+
+        async function fetchCart() {
+            try {
+                const res = await fetch(`/api/carts/${user.cart.id}/`);
+                if (res.ok) {
+                    const cart = await res.json();
+                    renderCart(cart.items);
+                }
+            } catch (err) {
+                console.error('Error fetching cart:', err);
+                document.getElementById('cartItems').innerHTML = '<p class="empty-cart">Error loading cart.</p>';
+            }
+        }
+
+        function renderCart(items) {
+            const container = document.getElementById('cartItems');
+            const summary = document.getElementById('cartSummary');
+
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div class="empty-cart"><h3>Your cart is empty</h3><p>Looks like you haven\'t added anything yet.</p></div>';
+                summary.style.display = 'none';
+                return;
+            }
+
+            summary.style.display = 'block';
+            let total = 0;
+            container.innerHTML = items.map(item => {
+                const product = productsCache[item.product_type][item.item_id] || { name: 'Unknown Product', price: 0 };
+                const subtotal = product.price * item.quantity;
+                total += subtotal;
+                return `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-type">${item.product_type}</div>
+                            <div class="cart-item-name">${product.name}</div>
+                            <div class="cart-item-price">$${Number(product.price).toFixed(2)}</div>
+                        </div>
+                        <div class="cart-controls">
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                            <span class="qty-val">${item.quantity}</span>
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                            <button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('totalAmount').innerText = `$${total.toFixed(2)}`;
+        }
+
+        async function updateQuantity(cartItemId, newQty) {
+            if (newQty < 1) return;
+            try {
+                const res = await fetch(`/api/cart-items/${cartItemId}/`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantity: newQty })
+                });
+                if (res.ok) fetchCart();
+            } catch (err) {
+                console.error('Error updating quantity:', err);
+            }
+        }
+
+        async function removeFromCart(cartItemId) {
+            if (!confirm('Are you sure you want to remove this item?')) return;
+            try {
+                const res = await fetch(`/api/cart-items/${cartItemId}/`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) fetchCart();
+            } catch (err) {
+                console.error('Error removing item:', err);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = '/login/';
+        }
+
+        init();
+    </script>
+</body>
+</html>

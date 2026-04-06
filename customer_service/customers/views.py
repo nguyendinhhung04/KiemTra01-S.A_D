@@ -34,6 +34,9 @@ def register_ui(request):
 def home_ui(request):
     return render(request, 'home.html')
 
+def cart_ui(request):
+    return render(request, 'cart.html')
+
 class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer

@@ -89,7 +89,7 @@
             <div id="errorMessage" class="error"></div>
         </form>
         <div class="footer">
-            Already have an account? <a href="/api/ui/login/">Log in here</a>
+            Already have an account? <a href="/login/">Log in here</a>
         </div>
     </div>
 
@@ -117,7 +117,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     alert('Registration successful! Please login.');
-                    window.location.href = '/api/ui/login/';
+                    window.location.href = '/login/';
                 } else {
                     const data = await response.json();
                     errorDiv.innerText = JSON.stringify(data);

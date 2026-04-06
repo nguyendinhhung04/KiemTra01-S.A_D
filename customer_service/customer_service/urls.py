@@ -16,10 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from customers.views import home_ui
+from customers.views import home_ui, login_ui, register_ui, cart_ui
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('customers.urls')),
     path('home/', home_ui, name='home'),
+    path('login/', login_ui, name='login-ui'),
+    path('register/', register_ui, name='register-ui'),
+    path('ui/cart/', cart_ui, name='cart-ui'),
 ]
