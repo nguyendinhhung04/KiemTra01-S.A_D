@@ -1,3 +1,4 @@
+import requests
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -7,6 +8,10 @@ from .serializers import StaffSerializer
 
 def login_view(request):
     return render(request, 'login.html')
+
+def dashboard_view(request):
+    return render(request, 'dashboard.html')
+
 
 class StaffViewSet(viewsets.ModelViewSet):
     queryset = Staff.objects.all()

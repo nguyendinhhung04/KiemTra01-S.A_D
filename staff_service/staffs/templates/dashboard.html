@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Laptop Inventory</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --text-color: #ecf0f1;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 1rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        nav {
+            background-color: var(--secondary-color);
+            padding: 0.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover {
+            background-color: var(--accent-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .inventory-table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 1rem;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #edf2f7;
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .price-tag {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .manufacturer-badge {
+            background-color: #ebf8ff;
+            color: #2b6cb0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .edit-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .edit-btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close:hover { color: #000; }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal-footer {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .btn-save {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-cancel {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .loading, .no-data {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Staff Administration</h1>
+    </header>
+    
+    <nav>
+        <div>
+            <a href="/admin/dashboard/">Dashboard</a>
+            <a href="#">Laptops</a>
+            <!-- <a href="#">Mobiles</a>
+            <a href="#">Customers</a> -->
+        </div>
+        <a href="/admin/login/">Logout</a>
+    </nav>
+
+    <div class="container">
+        <h2>Laptop Inventory</h2>
+        
+        <div id="contentArea">
+            <div class="loading">
+                <h3>Loading inventory...</h3>
+                <p>Please wait while we fetch the latest laptop data.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h3>Edit Laptop Information</h3>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editLaptopId">
+                <div class="form-group">
+                    <label for="editName">Product Name</label>
+                    <input type="text" id="editName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editManufacturer">Manufacturer</label>
+                    <select id="editManufacturer" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="editPrice">Price ($)</label>
+                    <input type="number" id="editPrice" step="0.01" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Laptop Management System - Staff Portal
+    </div>
+
+    <script>
+        let allLaptops = [];
+        let allManufacturers = [];
+        let manufacturerMap = {};
+
+        async function fetchData() {
+            const contentArea = document.getElementById('contentArea');
+            try {
+                const [laptopRes, manufacturerRes] = await Promise.all([
+                    fetch('http://localhost:8001/laptop/api/laptops/'),
+                    fetch('http://localhost:8001/laptop/api/manufacturers/')
+                ]);
+
+                if (laptopRes.ok && manufacturerRes.ok) {
+                    allLaptops = await laptopRes.json();
+                    allManufacturers = await manufacturerRes.json();
+                    
+                    // Create lookup map
+                    manufacturerMap = {};
+                    allManufacturers.forEach(m => manufacturerMap[m.id] = m.name);
+                    
+                    // Populate manufacturer select in modal
+                    const mSelect = document.getElementById('editManufacturer');
+                    mSelect.innerHTML = allManufacturers.map(m => 
+                        `<option value="${m.id}">${m.name}</option>`
+                    ).join('');
+                    
+                    renderTable(allLaptops);
+                } else {
+                    showError('Error loading data from the laptop service.');
+                }
+            } catch (err) {
+                console.error('Error fetching data:', err);
+                showError('Connection error. Make sure the laptop service is running.');
+            }
+        }
+
+        function renderTable(laptops) {
+            const contentArea = document.getElementById('contentArea');
+            if (!laptops || laptops.length === 0) {
+                contentArea.innerHTML = `
+                    <div class="no-data">
+                        <h3>No laptops found in the inventory.</h3>
+                        <p>The database appears to be empty.</p>
+                    </div>`;
+                return;
+            }
+
+            let tableHtml = `
+                <div class="inventory-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Manufacturer</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            tableHtml += laptops.map(laptop => `
+                <tr>
+                    <td style="font-weight: 500;">${laptop.name}</td>
+                    <td>
+                        <span class="manufacturer-badge">
+                            ${manufacturerMap[laptop.manufacturer] || 'Unknown'}
+                        </span>
+                    </td>
+                    <td class="price-tag">$${Number(laptop.price).toFixed(2)}</td>
+                    <td>
+                        <button class="edit-btn" onclick="openEditModal(${laptop.id})">Edit</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            tableHtml += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            contentArea.innerHTML = tableHtml;
+        }
+
+        function openEditModal(laptopId) {
+            const laptop = allLaptops.find(l => l.id === laptopId);
+            if (!laptop) return;
+
+            document.getElementById('editLaptopId').value = laptop.id;
+            document.getElementById('editName').value = laptop.name;
+            document.getElementById('editManufacturer').value = laptop.manufacturer;
+            document.getElementById('editPrice').value = laptop.price;
+
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        document.getElementById('editForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editLaptopId').value;
+            const updatedData = {
+                name: document.getElementById('editName').value,
+                manufacturer: parseInt(document.getElementById('editManufacturer').value),
+                price: parseFloat(document.getElementById('editPrice').value)
+            };
+
+            try {
+                const response = await fetch(`http://localhost:8001/laptop/api/laptops/${id}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (response.ok) {
+                    alert('Laptop updated successfully!');
+                    closeModal();
+                    fetchData(); // Refresh table
+                } else {
+                    const error = await response.json();
+                    alert('Error updating laptop: ' + JSON.stringify(error));
+                }
+            } catch (err) {
+                console.error('Error updating laptop:', err);
+                alert('Connection error. Could not update laptop.');
+            }
+        };
+
+        function showError(message) {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="no-data">
+                    <h3>Oops! Something went wrong.</h3>
+                    <p>${message}</p>
+                </div>`;
+        }
+
+        fetchData();
+    </script>
+</body>
+</html>

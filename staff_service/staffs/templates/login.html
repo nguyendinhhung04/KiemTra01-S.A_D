@@ -136,7 +136,9 @@
                 if (response.ok) {
                     messageDiv.className = 'success';
                     messageDiv.innerText = 'Welcome back, ' + data.staff.name + '! Redirecting...';
-                    // Redirect or handle session here
+                    setTimeout(() => {
+                        window.location.href = '/admin/dashboard/';
+                    }, 1000);
                 } else {
                     messageDiv.className = 'error';
                     messageDiv.innerText = data.error || 'Invalid credentials';

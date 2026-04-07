@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        nav ul { list-style: none; padding: 0; }
+        nav ul li { display: inline; margin-right: 15px; }
+        nav a { text-decoration: none; color: #007bff; }
+        nav a:hover { text-decoration: underline; }
+        .content { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Staff Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Dashboard Home</a></li>
+                <li><a href="{% url 'product_list' %}">Mobile Products</a></li> {# This assumes 'product_list' name is correctly mapped #}
+                {# Add other navigation links here if needed #}
+            </ul>
+        </nav>
+    </header>
+
+    <main class="content">
+        <p>Welcome to the staff dashboard.</p>
+        <p>Use the navigation above to access different sections.</p>
+        {# This page could dynamically load content or just serve as navigation #}
+    </main>
+</body>
+</html>
