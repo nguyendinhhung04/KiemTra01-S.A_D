@@ -184,8 +184,8 @@
         async function fetchProducts() {
             try {
                 const [laptopRes, mobileRes] = await Promise.all([
-                    fetch('http://localhost:8001/laptop/api/laptops/'),
-                    fetch('http://localhost:8002/mobile/api/mobiles/')
+                    fetch('http://localhost:8005/api/laptop-service/laptop/api/laptops/'),
+                    fetch('http://localhost:8005/api/mobile-service/mobile/api/mobiles/')
                 ]);
 
                 if (laptopRes.ok) {

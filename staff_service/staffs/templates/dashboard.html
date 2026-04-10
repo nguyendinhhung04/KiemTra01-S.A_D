@@ -297,8 +297,8 @@
             const contentArea = document.getElementById('contentArea');
             try {
                 const [laptopRes, manufacturerRes] = await Promise.all([
-                    fetch('http://localhost:8001/laptop/api/laptops/'),
-                    fetch('http://localhost:8001/laptop/api/manufacturers/')
+                    fetch('http://localhost:8005/api/laptop-service/laptop/api/laptops/'),
+                    fetch('http://localhost:8005/api/laptop-service/laptop/api/manufacturers/')
                 ]);
 
                 if (laptopRes.ok && manufacturerRes.ok) {
@@ -408,7 +408,7 @@
             };
 
             try {
-                const response = await fetch(`http://localhost:8001/laptop/api/laptops/${id}/`, {
+                const response = await fetch(`http://localhost:8005/api/laptop-service/laptop/api/laptops/${id}/`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
