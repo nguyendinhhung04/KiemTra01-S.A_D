@@ -136,6 +136,157 @@
             display: none;
             z-index: 1000;
         }
+
+        /* Chatbot Styles */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .chat-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: transform 0.3s;
+        }
+
+        .chat-button:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-window {
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: #f1f0f0;
+            color: var(--text);
+            border-bottom-left-radius: 2px;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 8px 15px;
+            outline: none;
+        }
+
+        .chat-send {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .typing-indicator {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -168,6 +319,30 @@
     </main>
 
     <div id="toast" class="toast">Item added to cart!</div>
+
+    <div class="chat-widget">
+        <div id="chatWindow" class="chat-window">
+            <div class="chat-header">
+                <span>Product Assistant</span>
+                <button class="close-chat" onclick="toggleChat()">×</button>
+            </div>
+            <div id="chatMessages" class="chat-messages">
+                <div class="message bot">
+                    Hello! How can I help you today?
+                    <div id="initialOptions" class="chat-options">
+                        <button class="option-btn" onclick="selectService('mobile')">Ask about Mobiles</button>
+                        <button class="option-btn" onclick="selectService('laptop')">Ask about Laptops</button>
+                    </div>
+                </div>
+            </div>
+            <div id="typingIndicator" class="typing-indicator" style="padding: 0 15px;">Assistant is typing...</div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                <button class="chat-send" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+        <button class="chat-button" onclick="toggleChat()">💬</button>
+    </div>
 
     <script>
         const user = JSON.parse(localStorage.getItem('user'));
@@ -259,6 +434,97 @@
         function logout() {
             localStorage.removeItem('user');
             window.location.href = '/login/';
+        }
+
+        /* Chatbot JavaScript */
+        let currentService = null;
+
+        function toggleChat() {
+            const window = document.getElementById('chatWindow');
+            window.style.display = window.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function selectService(service) {
+            currentService = service;
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user';
+            userMsg.textContent = `I want to ask about ${service === 'mobile' ? 'Mobiles' : 'Laptops'}.`;
+            messagesContainer.appendChild(userMsg);
+            
+            const botMsg = document.createElement('div');
+            botMsg.className = 'message bot';
+            botMsg.textContent = `Great! What would you like to know about our ${service}s?`;
+            messagesContainer.appendChild(botMsg);
+            
+            // Hide initial options
+            document.getElementById('initialOptions').style.display = 'none';
+            
+            scrollToBottom();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            if (!currentService) {
+                addMessage("Please select a category first (Mobile or Laptop)!", 'bot');
+                input.value = '';
+                return;
+            }
+
+            input.value = '';
+            addMessage(message, 'user');
+            
+            document.getElementById('typingIndicator').style.display = 'block';
+            scrollToBottom();
+
+            try {
+                const endpoint = currentService === 'mobile' 
+                    ? 'http://localhost:8005/api/mobile-service/mobile/api/chatbot/' 
+                    : 'http://localhost:8005/api/laptop-service/laptop/api/chatbot/';
+                    
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                document.getElementById('typingIndicator').style.display = 'none';
+                
+                if (data.reply) {
+                    addMessage(data.reply, 'bot');
+                } else {
+                    addMessage("Sorry, I encountered an error. Please try again.", 'bot');
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                document.getElementById('typingIndicator').style.display = 'none';
+                addMessage("Sorry, I can't connect to the assistant right now.", 'bot');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const container = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            msgDiv.textContent = text;
+            container.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const container = document.getElementById('chatMessages');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
         }
 
         fetchProducts();

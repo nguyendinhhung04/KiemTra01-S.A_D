@@ -1,7 +1,9 @@
 import requests
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from .services import SERVICE_REGISTRY
 
+@csrf_exempt
 def proxy_view(request, service_name, path):
     service_config = SERVICE_REGISTRY.get(service_name)
     if not service_config:
