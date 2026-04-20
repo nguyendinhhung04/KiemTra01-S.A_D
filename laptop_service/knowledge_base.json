@@ -1,0 +1,79 @@
+{
+  "laptops": [
+    {
+      "id": 1,
+      "name": "MacBook Air M2",
+      "manufacturer": "Apple",
+      "category": "Ultrabook",
+      "price": 1099.0,
+      "discount": 5,
+      "specs": {
+        "cpu": "Apple M2",
+        "gpu": "8-core GPU",
+        "ram": "8GB",
+        "screen": "13.6-inch Liquid Retina display"
+      },
+      "description": "8-core CPU, 8-core GPU, 8GB Unified Memory, 256GB SSD Storage"
+    },
+    {
+      "id": 2,
+      "name": "Dell XPS 15",
+      "manufacturer": "Dell",
+      "category": "Ultrabook",
+      "price": 1899.0,
+      "discount": 10,
+      "specs": {
+        "cpu": "Intel Core i7-12700H",
+        "gpu": "NVIDIA GeForce RTX 3050 Ti",
+        "ram": "16GB",
+        "screen": "15.6-inch FHD+"
+      },
+      "description": "Intel Core i7-12700H, 16GB DDR5 RAM, 512GB SSD, RTX 3050 Ti"
+    },
+    {
+      "id": 3,
+      "name": "ASUS ROG Zephyrus G14",
+      "manufacturer": "Asus",
+      "category": "Gaming",
+      "price": 1649.0,
+      "discount": 0,
+      "specs": {
+        "cpu": "AMD Ryzen 9 6900HS",
+        "gpu": "AMD Radeon RX 6700S",
+        "ram": "16GB",
+        "screen": "14-inch QHD 120Hz"
+      },
+      "description": "Ryzen 9 6900HS, 16GB DDR5, 1TB SSD, Radeon RX 6700S"
+    },
+    {
+      "id": 4,
+      "name": "HP Pavilion 15",
+      "manufacturer": "HP",
+      "category": "Student",
+      "price": 599.0,
+      "discount": 15,
+      "specs": {
+        "cpu": "Intel Core i5-1235U",
+        "gpu": "Intel Iris Xe Graphics",
+        "ram": "8GB",
+        "screen": "15.6-inch FHD"
+      },
+      "description": "Intel Core i5-1235U, 8GB RAM, 256GB SSD"
+    },
+    {
+      "id": 5,
+      "name": "Lenovo ThinkPad X1 Carbon",
+      "manufacturer": "Lenovo",
+      "category": "Business",
+      "price": 1549.0,
+      "discount": 8,
+      "specs": {
+        "cpu": "Intel Core i7-1260P",
+        "gpu": "Intel Iris Xe Graphics",
+        "ram": "16GB",
+        "screen": "14-inch WUXGA"
+      },
+      "description": "Intel Core i7-1260P, 16GB RAM, 512GB SSD"
+    }
+  ]
+}

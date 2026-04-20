@@ -1,55 +1,68 @@
 # chatbot/services.py
+import torch
+import json
+import os
+from transformers import pipeline
 
-from google import genai
-from google.genai import types
-from django.conf import settings
-from mobiles.models import Mobile
+_pipe = None
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+def get_chatbot_pipe():
+    global _pipe
+    if _pipe is None:
+        model_id = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+        _pipe = pipeline(
+            "text-generation", 
+            model=model_id, 
+            torch_dtype=torch.bfloat16, 
+            device_map="auto"
+        )
+    return _pipe
 
 
-def get_products_from_db():
-    """Lấy toàn bộ sản phẩm laptop từ database."""
-    return Mobile.objects.all()
+def get_knowledge_base():
+    """Đọc dữ liệu từ file JSON Knowledge Base local của service."""
+    kb_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'knowledge_base.json')
+    try:
+        with open(kb_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {"mobiles": []}
 
 
-def build_system_prompt(products) -> str:
-    if not products.exists():
+def build_system_prompt() -> str:
+    kb = get_knowledge_base()
+    mobiles = kb.get("mobiles", [])
+    
+    if not mobiles:
         product_text = "Hiện chưa có sản phẩm nào."
     else:
         product_text = "\n".join(
-            f"- {p.name} | Giá: {p.price:,.0f}đ | "
-            f"CPU: {p.cpu}, RAM: {p.ram}, GPU: {p.gpu}, Camera: {p.camera}"
-            for p in products
+            f"- {p['name']} | Giá: {p['price']:,.0f}$ | "
+            f"CPU: {p['specs']['cpu']}, RAM: {p['specs']['ram']}, Camera: {p['specs']['camera']}"
+            for p in mobiles
         )
 
-    return f"""Bạn là trợ lý tư vấn bán hàng điện tử thân thiện.
-Chỉ tư vấn các sản phẩm có trong danh sách dưới đây.
-Nếu hết hàng thì thông báo và gợi ý sản phẩm thay thế.
-Trả lời ngắn gọn bằng tiếng Việt.
-
-DANH SÁCH SẢN PHẨM:
-{product_text}"""
+    return f"""<|system|>
+Bạn là trợ lý trợ lý tư vấn bán điện thoại di động. 
+Danh sách sản phẩm từ Local Knowledge Base (JSON):
+{product_text}
+Chỉ tư vấn sản phẩm có trong danh sách. Trả lời bằng tiếng Việt.</s>"""
 
 
 def chat(user_message: str) -> str:
-    """
-    Gửi tin nhắn tới Gemini API (không lưu lịch sử).
-
-    Args:
-        user_message: Tin nhắn của người dùng.
-
-    Returns:
-        reply: Câu trả lời từ Gemini.
-    """
-    products = get_products_from_db()
-
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=user_message,
-        config=types.GenerateContentConfig(
-            system_instruction=build_system_prompt(products),
-        ),
+    system_prompt = build_system_prompt()
+    pipe = get_chatbot_pipe()
+    
+    prompt = f"{system_prompt}\n<|user|>\n{user_message}</s>\n<|assistant|>\n"
+    
+    outputs = pipe(
+        prompt, 
+        max_new_tokens=256, 
+        do_sample=True, 
+        temperature=0.7
     )
-
-    return response.text
+    
+    full_response = outputs[0]["generated_text"]
+    reply = full_response.split("<|assistant|>\n")[-1]
+    
+    return reply.strip()

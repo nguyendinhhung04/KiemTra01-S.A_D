@@ -1,0 +1,74 @@
+{
+  "mobiles": [
+    {
+      "id": 1,
+      "name": "iPhone 15 Pro Max",
+      "manufacturer": "Apple",
+      "category": "Smartphone",
+      "price": 1199.99,
+      "discount": 5,
+      "specs": {
+        "cpu": "A17 Pro",
+        "gpu": "Apple GPU (6-core)",
+        "ram": "8GB",
+        "camera": "48MP Main, 12MP Ultra Wide, 12MP Telephoto"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Samsung Galaxy S24 Ultra",
+      "manufacturer": "Samsung",
+      "category": "Smartphone",
+      "price": 1299.99,
+      "discount": 10,
+      "specs": {
+        "cpu": "Snapdragon 8 Gen 3",
+        "gpu": "Adreno 750",
+        "ram": "12GB",
+        "camera": "200MP Main, 12MP Ultra Wide, 10MP Telephoto, 50MP Periscope"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Xiaomi 14 Ultra",
+      "manufacturer": "Xiaomi",
+      "category": "Smartphone",
+      "price": 999.0,
+      "discount": 15,
+      "specs": {
+        "cpu": "Snapdragon 8 Gen 3",
+        "gpu": "Adreno 750",
+        "ram": "16GB",
+        "camera": "50MP Quad Camera System"
+      }
+    },
+    {
+      "id": 4,
+      "name": "ASUS ROG Phone 8",
+      "manufacturer": "Asus",
+      "category": "Gaming Phone",
+      "price": 1099.0,
+      "discount": 0,
+      "specs": {
+        "cpu": "Snapdragon 8 Gen 3",
+        "gpu": "Adreno 750",
+        "ram": "16GB",
+        "camera": "50MP Main, 13MP Ultra Wide, 32MP Telephoto"
+      }
+    },
+    {
+      "id": 5,
+      "name": "Samsung Galaxy Z Fold 5",
+      "manufacturer": "Samsung",
+      "category": "Foldable",
+      "price": 1799.99,
+      "discount": 20,
+      "specs": {
+        "cpu": "Snapdragon 8 Gen 2",
+        "gpu": "Adreno 740",
+        "ram": "12GB",
+        "camera": "50MP Main, 12MP Ultra Wide, 10MP Telephoto"
+      }
+    }
+  ]
+}
