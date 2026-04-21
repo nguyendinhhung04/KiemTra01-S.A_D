@@ -10,5 +10,8 @@ python manage.py migrate
 echo "Seeding database..."
 python manage.py seed_db
 
+echo "Seeding graph database..."
+python seed_graph.py
+
 echo "Starting server..."
 exec "$@"

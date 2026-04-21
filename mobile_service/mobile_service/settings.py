@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'mobiles',
+    'neomodel',
 ]
 
 MIDDLEWARE = [
@@ -105,6 +106,10 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
+
+# Neo4j configuration
+NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:password@localhost:7687')
+NEOMODEL_DATABASE_URL = os.environ.get('NEO4J_DATABASE_URL', 'bolt://neo4j:password@localhost:7687')
 
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 

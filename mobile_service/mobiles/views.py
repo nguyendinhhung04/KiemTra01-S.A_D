@@ -27,6 +27,12 @@ class ChatbotView(APIView):
         user_message = request.data.get('message')
         if not user_message:
             return Response({"error": "Message is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not chatbot.is_graph_ready():
+            return Response(
+                {"error": "Graph data is still being seeded. Try again shortly."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         
         try:
             reply = chatbot.chat(user_message)

@@ -1,6 +1,16 @@
-version: '3.8'
-
 services:
+  neo4j:
+    image: neo4j:5.20
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_PLUGINS=["graph-data-science"]
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
   laptop-service:
     build: ./laptop_service
     ports:
@@ -11,6 +21,9 @@ services:
       - DB_NAME=kiemtra01_laptop
       - DB_USER=postgres
       - DB_PASSWORD=12345678
+      - NEO4J_BOLT_URL=bolt://neo4j:password@neo4j:7687
+    depends_on:
+      - neo4j
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -24,6 +37,9 @@ services:
       - DB_NAME=kiemtra01_mobile
       - DB_USER=postgres
       - DB_PASSWORD=12345678
+      - NEO4J_BOLT_URL=bolt://neo4j:password@neo4j:7687
+    depends_on:
+      - neo4j
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -59,3 +75,7 @@ services:
       - "8005:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+volumes:
+  neo4j_data:
+  neo4j_logs:

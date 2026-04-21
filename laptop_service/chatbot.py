@@ -1,69 +1,101 @@
-# chatbot/services.py
+from pathlib import Path
+
 import torch
-import json
-import os
 from transformers import pipeline
 
+from laptops.graph_models import Laptop
+
 _pipe = None
+GRAPH_READY_FILE = Path("/tmp/laptop_graph_ready")
+
 
 def get_chatbot_pipe():
     global _pipe
     if _pipe is None:
         model_id = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
         _pipe = pipeline(
-            "text-generation", 
-            model=model_id, 
-            torch_dtype=torch.bfloat16, 
-            device_map="auto"
+            "text-generation",
+            model=model_id,
+            torch_dtype=torch.float32,
+            device_map="cpu",
         )
     return _pipe
 
 
+def is_graph_ready() -> bool:
+    return GRAPH_READY_FILE.exists()
+
+
 def get_knowledge_base():
-    """Đọc dữ liệu từ file JSON Knowledge Base local của service."""
-    # Tìm file knowledge_base.json trong cùng thư mục với manage.py của service này
-    kb_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'knowledge_base.json')
+    if not is_graph_ready():
+        raise RuntimeError("Graph data is still being seeded")
+
     try:
-        with open(kb_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
+        laptops = Laptop.nodes.all()
+        laptop_list = []
+        for laptop in laptops:
+            manufacturer = laptop.manufacturer.all()[0] if laptop.manufacturer else None
+            category = laptop.category.all()[0] if laptop.category else None
+            cpu = laptop.cpu.all()[0] if laptop.cpu else None
+            gpu = laptop.gpu.all()[0] if laptop.gpu else None
+            ram = laptop.ram.all()[0] if laptop.ram else None
+            screen = laptop.screen.all()[0] if laptop.screen else None
+
+            laptop_list.append(
+                {
+                    "id": laptop.product_id,
+                    "name": laptop.name,
+                    "manufacturer": manufacturer.name if manufacturer else "",
+                    "category": category.name if category else "",
+                    "price": laptop.price,
+                    "discount": laptop.discount,
+                    "specs": {
+                        "cpu": cpu.name if cpu else "",
+                        "gpu": gpu.name if gpu else "",
+                        "ram": ram.name if ram else "",
+                        "screen": screen.name if screen else "",
+                    },
+                    "description": laptop.description,
+                }
+            )
+        return {"laptops": laptop_list}
+    except Exception as e:
+        print(f"Error querying Neo4j: {e}")
         return {"laptops": []}
 
 
 def build_system_prompt() -> str:
     kb = get_knowledge_base()
     laptops = kb.get("laptops", [])
-    
+
     if not laptops:
-        product_text = "Hiện chưa có sản phẩm nào."
+        product_text = "Hien chua co san pham nao."
     else:
         product_text = "\n".join(
-            f"- {p['name']} | Giá: {p['price']:,.0f}$ | "
+            f"- {p['name']} | Gia: {p['price']:,.0f}$ | "
             f"CPU: {p['specs']['cpu']}, RAM: {p['specs']['ram']}, GPU: {p['specs']['gpu']}"
             for p in laptops
         )
 
     return f"""<|system|>
-Bạn là trợ lý tư vấn bán hàng laptop thân thiện. 
-Dưới đây là danh sách sản phẩm từ Local Knowledge Base (JSON):
+Ban la tro ly tu van ban hang laptop than thien.
+Duoi day la danh sach san pham tu Graph Knowledge Base (Neo4j):
 {product_text}
-Chỉ tư vấn sản phẩm có trong danh sách. Trả lời ngắn gọn bằng tiếng Việt.</s>"""
+Chi tu van san pham co trong danh sach. Tra loi ngan gon bang tieng Viet.</s>"""
 
 
 def chat(user_message: str) -> str:
     system_prompt = build_system_prompt()
     pipe = get_chatbot_pipe()
-    
+
     prompt = f"{system_prompt}\n<|user|>\n{user_message}</s>\n<|assistant|>\n"
-    
     outputs = pipe(
-        prompt, 
-        max_new_tokens=256, 
-        do_sample=True, 
-        temperature=0.7
+        prompt,
+        max_new_tokens=256,
+        do_sample=True,
+        temperature=0.7,
     )
-    
+
     full_response = outputs[0]["generated_text"]
     reply = full_response.split("<|assistant|>\n")[-1]
-    
     return reply.strip()
