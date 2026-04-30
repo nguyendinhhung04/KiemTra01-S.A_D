@@ -76,6 +76,22 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  ai-service:
+    build: ./ai_service
+    ports:
+      - "8006:8000"
+    environment:
+      - NEO4J_BOLT_URL=bolt://neo4j:password@neo4j:7687
+      - HF_TOKEN={your-token-here}
+      - HF_HOME=/app/hf_cache
+    volumes:
+      - hf_cache:/app/hf_cache
+    depends_on:
+      - neo4j
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   neo4j_data:
   neo4j_logs:
+  hf_cache:

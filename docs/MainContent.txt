@@ -1,0 +1,30 @@
+Chương 2
+Phát triển Hệ E-Commerce
+Microservices
+
+1.Xác định yêu cầu
+1.1.Yêu cầu chức năng (Liệt kê các chức năng có trong hệ thống)
+1.2.Yêu cầu phi chức năng (Scalability, High Availability, Security, Maintainnability)
+2.Phân rã hệ thống theo DDD
+2.1.Bounded Context (Customer Context, Laptop Context, Mobile Context, Staff Context, AI Context )
+2.2.Nguyên tắc và ràng buộc
+3.THiết kế Customer Service (Django) (Phan tích dựa trên project)
+3.1.Logic
+3.2.Model
+3.3.API
+4.THiết kế Laptop Service (Django) (Phan tích dựa trên project)
+4.1.Logic
+4.2.Model
+4.3.API
+5.THiết kế Mobile Service (Django) (Phan tích dựa trên project)
+5.1.Logic
+5.2.Model
+5.3.API
+6.Thiết kế Staff Service (Django) (Phan tích dựa trên project)
+6.1.Logic
+6.2.Model
+6.3.API
+7.THiết kế AI Service (Django) (Phan tích dựa trên project)
+7.1.Logic
+7.2.Model
+7.3.API

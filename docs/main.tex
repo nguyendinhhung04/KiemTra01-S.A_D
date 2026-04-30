@@ -1,0 +1,325 @@
+% !TEX program = xelatex
+\documentclass[12pt,a4paper]{report}
+
+% --- Cấu hình Tiếng Việt và Font cho Overleaf (XeLaTeX) ---
+\usepackage{fontspec}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{booktabs} 
+\usepackage{geometry}
+\usepackage{enumitem} % Tùy chỉnh danh sách
+\geometry{a4paper, margin=2.5cm}
+
+% Sử dụng font Times New Roman chuẩn học thuật
+\setmainfont{Times New Roman}
+
+% Cấu hình tiêu đề chương và phần
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}{\chaptername\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{40pt}
+
+\begin{document}
+
+\chapter{Từ Monolithic đến Microservice và DDD}
+
+\section{Kiến trúc đơn khối (Monolithic Architecture)}
+\subsection{Khái niệm và Bản chất Kỹ thuật}
+Kiến trúc Monolithic không chỉ đơn thuần là việc đóng gói mã nguồn vào một tệp tin thực thi (như .war hay .jar), mà còn đại diện cho một tư duy thiết kế tập trung. Trong mô hình này, toàn bộ logic nghiệp vụ, giao diện người dùng, và các thành phần truy xuất dữ liệu được liên kết chặt chẽ (tightly coupled) trong một đơn vị duy nhất. 
+
+Sự gắn kết này có nghĩa là các thành phần chia sẻ chung bộ nhớ, tài nguyên CPU và thường là một cơ sở dữ liệu quan hệ duy nhất. Bất kỳ thay đổi nhỏ nào trong một module cũng đòi hỏi việc biên dịch lại và triển khai lại toàn bộ hệ thống.
+
+\subsection{Cấu trúc Phân lớp điển hình}
+Đa số các hệ thống Monolithic hiện đại được tổ chức theo mô hình **Layered Architecture** (Kiến trúc phân lớp):
+\begin{itemize}
+    \item \textbf{Presentation Layer:} Xử lý giao diện người dùng và các yêu cầu HTTP.
+    \item \textbf{Business Logic Layer:} Chứa các quy tắc nghiệp vụ cốt lõi của hệ thống.
+    \item \textbf{Data Access Layer (DAL):} Chịu trách nhiệm giao tiếp với cơ sở dữ liệu.
+\end{itemize}
+
+Mặc dù được phân lớp về mặt logic, nhưng ở cấp độ vật lý, chúng vẫn chạy chung một tiến trình (process).
+
+\subsection{Ưu điểm và Hạn chế trong Vận hành}
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item \textbf{Đơn giản trong quản lý:} Quá trình kiểm thử tích hợp (End-to-End testing) diễn ra thuận lợi do không có độ trễ mạng giữa các thành phần.
+    \item \textbf{Hiệu suất tối ưu:} Các lời gọi hàm trực tiếp trong bộ nhớ luôn nhanh hơn việc gọi qua API hoặc Message Broker.
+    \item \textbf{Nhất quán dữ liệu (ACID):} Việc sử dụng một DB duy nhất giúp đảm bảo tính toàn vẹn dữ liệu thông qua các Transaction truyền thống.
+\end{itemize}
+
+\textbf{Hạn chế (The Big Ball of Mud):}
+\begin{itemize}
+    \item \textbf{Rào cản về quy mô (Scalability):} Không thể mở rộng riêng biệt một module bị nghẽn (ví dụ: module xử lý thanh toán), buộc phải nhân bản toàn bộ ứng dụng, gây lãng phí tài nguyên.
+    \item \textbf{Sự trì trệ về công nghệ (Technology Lock-in):} Việc nâng cấp một thư viện hoặc ngôn ngữ mới là cực kỳ rủi ro vì nó ảnh hưởng đến tất cả các phần còn lại.
+\end{itemize}
+
+\section{Kiến trúc Dịch vụ nhỏ (Microservices Architecture)}
+\subsection{Triết lý thiết kế và Đặc điểm cốt lõi}
+Khác với Monolithic, Microservices tuân thủ triết lý "Làm một việc và làm thật tốt" (Do one thing and do it well). Mỗi dịch vụ là một thực thể độc lập, có vòng đời phát triển và triển khai riêng biệt. 
+
+Đặc điểm quan trọng nhất là **Bao đóng dữ liệu (Data Encapsulation)**: Mỗi microservice sở hữu cơ sở dữ liệu riêng (Database per Service), ngăn chặn việc truy cập dữ liệu trực tiếp từ các dịch vụ khác, từ đó giảm thiểu sự phụ thuộc.
+
+\subsection{Hệ sinh thái và Các thành phần bổ trợ}
+Để một hệ thống Microservices vận hành ổn định, cần có các thành phần hạ tầng phức tạp:
+\begin{itemize}
+    \item \textbf{API Gateway:} Điểm tiếp nhận duy nhất cho client, chịu trách nhiệm định tuyến, xác thực và giới hạn lưu lượng.
+    \item \textbf{Service Discovery:} Cho phép các dịch vụ tìm thấy nhau trong môi trường mạng động (ví dụ: Netflix Eureka, Consul).
+    \item \textbf{Circuit Breaker:} Cơ chế ngăn chặn lỗi dây chuyền khi một dịch vụ gặp sự cố (ví dụ: Hystrix hoặc Resilience4j).
+\end{itemize}
+
+
+\subsection{Thách thức về Quản trị và Nhất quán dữ liệu}
+Mặc dù mang lại sự linh hoạt, Microservices đối mặt với bài toán **Nhất quán sau cùng (Eventual Consistency)**. Do dữ liệu bị phân tán, việc thực hiện các giao dịch phân tán (Distributed Transactions) trở nên cực kỳ khó khăn, thường phải áp dụng các mô hình như **Saga Pattern** để điều phối.
+
+\section{Phân tích so sánh: Khi nào nên chuyển đổi?}
+Việc lựa chọn kiến trúc không dựa trên xu hướng, mà dựa trên "Complexity-Value Curve" (Đường cong giá trị và độ phức tạp). 
+\begin{itemize}
+    \item Với các dự án khởi nghiệp cần MVP nhanh, Monolithic là sự lựa chọn tối ưu. 
+    \item Khi số lượng lập trình viên tăng lên (trên 20-30 người) và các yêu cầu nghiệp vụ trở nên quá chồng chéo, việc phân rã sang Microservices trở thành yếu tố sống còn để duy trì tốc độ phát triển.
+\end{itemize}
+
+\section{Thiết kế hướng tên miền (Domain-Driven Design - DDD)}
+\subsection{Tại sao DDD là chìa khóa cho Microservices?}
+Một trong những lỗi lớn nhất khi triển khai Microservices là phân rã dịch vụ theo kỹ thuật (ví dụ: Service DB, Service UI). DDD giải quyết vấn đề này bằng cách tập trung vào nghiệp vụ cốt lõi.
+
+\subsection{Chiến lược thiết kế (Strategic Design)}
+Khái niệm quan trọng nhất là **Bounded Context** (Ngữ cảnh bao đóng). Nó xác định ranh giới logic mà trong đó một mô hình dữ liệu có ý nghĩa nhất định. Ví dụ: Từ "Sản phẩm" trong ngữ cảnh "Bán hàng" sẽ khác with "Sản phẩm" trong ngữ cảnh "Kho bãi". Việc xác định đúng các Bounded Context chính là bước đầu tiên để xác định ranh giới của các Microservices.
+
+\subsection{Context Mapping: Bản đồ tương tác}
+Context Map giúp mô tả mối quan hệ giữa các ngữ cảnh:
+\begin{itemize}
+    \item \textbf{Shared Kernel:} Hai ngữ cảnh chia sẻ chung một phần mô hình.
+    \item \textbf{Anticorruption Layer (ACL):} Lớp đệm giúp dịch vụ mới không bị ảnh hưởng bởi thiết kế lỗi thời của hệ thống cũ.
+\end{itemize}
+
+\subsection{Thiết kế kỹ thuật (Tactical Design)}
+Để thực thi logic bên trong một Microservice, DDD cung cấp các công cụ:
+\begin{itemize}
+    \item \textbf{Aggregate:} Một cụm các đối tượng dữ liệu được coi là một đơn vị để thay đổi dữ liệu.
+    \item \textbf{Value Objects:} Các đối tượng không có định danh, chỉ chứa giá trị (như Địa chỉ, Tiền tệ).
+    \item \textbf{Repositories:} Lớp trung gian giữa Domain và Data Mapping.
+\end{itemize}
+
+\chapter{Phát triển Hệ thống E-Commerce dựa trên Microservices}
+
+\section{Xác định yêu cầu hệ thống}
+Trong bối cảnh thị trường thương mại điện tử cạnh tranh khốc liệt, việc xây dựng một hệ thống có khả năng thích ứng nhanh và quy mô lớn là điều bắt buộc. Hệ thống được thiết kế để phục vụ cả khách hàng (Customer) và nhân viên quản trị (Staff), tích hợp trí tuệ nhân tạo (AI) để tối ưu hóa trải nghiệm người dùng.
+
+\subsection{Yêu cầu chức năng (Functional Requirements)}
+Hệ thống bao gồm các nhóm chức năng chính sau:
+\begin{itemize}
+    \item \textbf{Quản lý người dùng và xác thực:} Cho phép khách hàng đăng ký, đăng nhập và quản lý thông tin cá nhân. Nhân viên có các quyền hạn riêng biệt theo vai trò (Role-based Access Control).
+    \item \textbf{Quản lý danh mục sản phẩm:} Hiển thị và quản lý thông tin chi tiết các dòng Laptop và Mobile, bao gồm cấu hình kỹ thuật, giá cả và chương trình khuyến mãi.
+    \item \textbf{Hệ thống giỏ hàng:} Cho phép người dùng thêm, bớt sản phẩm từ các dịch vụ khác nhau (Laptop/Mobile) vào một giỏ hàng nhất nhất quán.
+    \item \textbf{Tư vấn thông minh (AI Chatbot):} Cung cấp khả năng trả lời tự động các thắc mắc về sản phẩm dựa trên cơ sở tri thức (Knowledge Base) được trích xuất từ cơ sở dữ liệu đồ thị.
+\end{itemize}
+
+\subsection{Yêu cầu phi chức năng (Non-functional Requirements)}
+Để đảm bảo chất lượng dịch vụ cấp doanh nghiệp, hệ thống cần đáp ứng:
+\begin{itemize}
+    \item \textbf{Tính mở rộng (Scalability):} Khả năng mở rộng độc lập các dịch vụ có tải cao như Laptop Service hoặc AI Service mà không ảnh hưởng đến toàn bộ hệ thống.
+    \item \textbf{Tính sẵn sàng cao (High Availability):} Hệ thống phải hoạt động liên tục, giảm thiểu điểm chết duy nhất (Single Point of Failure) thông qua cơ chế replication và load balancing.
+    \item \textbf{Tính bảo mật (Security):} Dữ liệu người dùng phải được mã hóa, các API được bảo vệ qua Gateway và cơ chế xác thực tập trung.
+    \item \textbf{Khả năng bảo trì (Maintainability):} Mã nguồn được tổ chức theo cấu trúc chuẩn của Django và Microservices, giúp dễ dàng nâng cấp và sửa lỗi từng phần.
+\end{itemize}
+
+\section{Phân rã hệ thống theo thiết kế hướng tên miền (DDD)}
+Việc phân rã hệ thống dựa trên nghiệp vụ thay vì kỹ thuật giúp đảm bảo tính bao đóng và giảm thiểu sự phụ thuộc chồng chéo.
+
+\subsection{Xác định các Ngữ cảnh bao đóng (Bounded Contexts)}
+Dựa trên phân tích nghiệp vụ, hệ thống được chia thành 5 Bounded Contexts chính:
+\begin{itemize}
+    \item \textbf{Customer Context:} Tập trung vào thực thể khách hàng và quy trình tương tác của họ với hệ thống (Login, Register, Cart).
+    \item \textbf{Laptop Context:} Quản lý chuyên sâu về các sản phẩm máy tính xách tay với các đặc tính kỹ thuật riêng biệt (CPU, GPU, Screen).
+    \item \textbf{Mobile Context:} Quản lý các thiết bị di động với các thuộc tính như Camera, dung lượng Pin.
+    \item \textbf{Staff Context:} Quản lý nhân sự và các hoạt động quản trị nội bộ.
+    \item \textbf{AI Context:} Cung cấp các khả năng thông minh, xử lý ngôn ngữ tự nhiên để tư vấn bán hàng.
+\end{itemize}
+
+\subsection{Các nguyên tắc và ràng buộc kiến trúc}
+Hệ thống tuân thủ các ràng buộc nghiêm ngặt:
+\begin{itemize}
+    \item \textbf{Database per Service:} Mỗi ngữ cảnh sở hữu một cơ sở dữ liệu riêng, đảm bảo tính cô lập hoàn toàn về dữ liệu.
+    \item \textbf{Polyglot Persistence:} Sử dụng đa dạng các loại cơ sở dữ liệu (PostgreSQL cho dữ liệu quan hệ và Neo4j cho dữ liệu đồ thị phục vụ AI).
+    \item \textbf{Giao tiếp qua API/Gateway:} Các dịch vụ không gọi trực tiếp cơ sở dữ liệu của nhau mà phải thông qua các giao diện lập trình ứng dụng (API).
+\end{itemize}
+
+\section{Thiết kế và Triển khai Customer Service}
+Customer Service đóng vai trò là điểm chạm đầu tiên của người dùng, xử lý các nghiệp vụ liên quan đến định danh và quản lý trạng thái mua hàng.
+
+\subsection{Logic nghiệp vụ}
+\begin{itemize}
+    \item \textbf{Quản lý danh tính:} Xử lý quy trình đăng ký tài khoản mới và xác thực người dùng dựa trên thông tin định danh duy nhất.
+    \item \textbf{Quản lý giỏ hàng tập trung:} Khởi tạo giỏ hàng riêng biệt cho mỗi khách hàng ngay khi đăng ký.
+    \item \textbf{Xử lý vật phẩm đa dạng:} Cho phép thêm các loại sản phẩm khác nhau (Laptop, Mobile) vào chung một giỏ hàng bằng cách lưu trữ mã định danh và loại sản phẩm.
+    \item \textbf{Cập nhật số lượng thông minh:} Tự động kiểm tra sự tồn tại của vật phẩm trong giỏ; nếu đã tồn tại, hệ thống sẽ cộng dồn số lượng thay vì tạo bản ghi mới.
+\end{itemize}
+
+\subsection{Mô hình dữ liệu (Data Models)}
+Hệ thống sử dụng các thực thể chính sau:
+\begin{itemize}
+    \item \textbf{Customer:}
+        \begin{itemize}
+            \item \texttt{name}: Họ và tên khách hàng (String).
+            \item \texttt{phone}: Số điện thoại liên lạc (String).
+            \item \texttt{email}: Địa chỉ thư điện tử (Unique Email).
+            \item \texttt{username}: Tên đăng nhập (Unique String).
+            \item \texttt{password}: Mật khẩu đã được băm (Hash String).
+        \end{itemize}
+    \item \textbf{Cart:}
+        \begin{itemize}
+            \item \texttt{customer}: Liên kết 1-1 với thực thể Customer.
+        \end{itemize}
+    \item \textbf{CartItem:}
+        \begin{itemize}
+            \item \texttt{item\_id}: ID của sản phẩm từ dịch vụ ngoại lai (Integer).
+            \item \texttt{product\_type}: Loại sản phẩm (MOBILE hoặc LAPTOP).
+            \item \texttt{quantity}: Số lượng sản phẩm trong giỏ (Positive Integer).
+            \item \texttt{cart}: Liên kết N-1 với thực thể Cart.
+        \end{itemize}
+\end{itemize}
+
+\subsection{Giao diện lập trình ứng dụng (API Endpoints)}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|p{4cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Endpoint} & \textbf{Method} & \textbf{Tác dụng} & \textbf{Dữ liệu yêu cầu} & \textbf{Dữ liệu trả về} \\ \hline
+\texttt{/register/} & POST & Đăng ký tài khoản & Thông tin Customer & JSON khách hàng \\ \hline
+\texttt{/login/} & POST & Xác thực người dùng & Username, Password & Thông tin khách hàng \\ \hline
+\texttt{/cart-items/} & GET & Liệt kê vật phẩm & Token xác thực & List CartItems \\ \hline
+\texttt{/cart-items/} & POST & Thêm vào giỏ & \texttt{item\_id, type, qty} & CartItem chi tiết \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Thiết kế và Triển khai Laptop Service}
+Dịch vụ quản lý kho dữ liệu và đặc tính kỹ thuật của các dòng máy tính xách tay.
+
+\subsection{Logic nghiệp vụ}
+\begin{itemize}
+    \item \textbf{Phân loại sản phẩm:} Tổ chức máy tính theo hãng sản xuất và danh mục sử dụng (Gaming, Văn phòng, v.v.).
+    \item \textbf{Quản lý cấu hình chi tiết:} Lưu trữ các thông số phần cứng chuyên sâu phục vụ việc so sánh và tra cứu.
+    \item \textbf{Đồng bộ hóa dữ liệu đồ thị:} Cung cấp dữ liệu để ánh xạ sang Neo4j, xây dựng mạng lưới liên kết giữa sản phẩm và các thành phần phần cứng.
+\end{itemize}
+
+\subsection{Mô hình dữ liệu (Data Models)}
+\begin{itemize}
+    \item \textbf{Mô hình quan hệ (Relational Model):}
+        \begin{itemize}
+            \item \textbf{Laptop:} \texttt{name, img\_url, price, discount, ram, cpu, gpu, screen}.
+            \item \textbf{Manufacturer / Category}: Chỉ bao gồm trường \texttt{name} để định danh.
+        \end{itemize}
+    \item \textbf{Mô hình đồ thị (Graph Model):}
+        \begin{itemize}
+            \item \textbf{Nodes:} \texttt{Laptop, CPU, GPU, RAM, Screen, Manufacturer}.
+            \item \textbf{Relationships:} \texttt{HAS\_CPU, MADE\_BY, BELONGS\_TO}.
+        \end{itemize}
+\end{itemize}
+
+\subsection{Giao diện lập trình ứng dụng (API Endpoints)}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|p{4cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Endpoint} & \textbf{Method} & \textbf{Tác dụng} & \textbf{Dữ liệu yêu cầu} & \textbf{Dữ liệu trả về} \\ \hline
+\texttt{/laptops/} & GET & Lấy danh sách sản phẩm & Tham số lọc (tùy chọn) & Danh sách Laptop \\ \hline
+\texttt{/laptops/\{id\}/} & GET & Chi tiết sản phẩm & ID sản phẩm & Đối tượng Laptop \\ \hline
+\texttt{/manufacturers/} & GET & Lấy danh sách hãng & Không & Danh sách hãng \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Thiết kế và Triển khai Mobile Service}
+Quản lý dải sản phẩm thiết bị di động và các đặc thù công nghệ liên quan.
+
+\subsection{Logic nghiệp vụ}
+\begin{itemize}
+    \item \textbf{Quản lý thông số di động:} Tập trung vào các yếu tố người dùng quan tâm như Camera và hiệu năng xử lý.
+    \item \textbf{Phân mảnh thị trường:} Hỗ trợ phân loại sản phẩm theo thương hiệu để người dùng dễ dàng tiếp cận.
+\end{itemize}
+
+\subsection{Mô hình dữ liệu (Data Models)}
+\begin{itemize}
+    \item \textbf{Mobile:}
+        \begin{itemize}
+            \item \texttt{name, price, discount, camera}: Thuộc tính cơ bản và đặc thù.
+            \item \texttt{ram, cpu, gpu}: Cấu hình hiệu năng.
+            \item \texttt{manufacturer, category}: Tham chiếu thực thể cha.
+        \end{itemize}
+\end{itemize}
+
+\subsection{Giao diện lập trình ứng dụng (API Endpoints)}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|p{4cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Endpoint} & \textbf{Method} & \textbf{Tác dụng} & \textbf{Dữ liệu yêu cầu} & \textbf{Dữ liệu trả về} \\ \hline
+\texttt{/mobiles/} & GET & Danh sách điện thoại & Không & List Mobile \\ \hline
+\texttt{/mobiles/\{id\}/} & GET & Xem chi tiết & ID & Chi tiết Mobile \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Thiết kế và Triển khai Staff Service}
+Hệ thống quản trị dành cho nhân sự vận hành sàn thương mại điện tử.
+
+\subsection{Logic nghiệp vụ}
+\begin{itemize}
+    \item \textbf{Kiểm soát truy cập (RBAC):} Phân quyền nhân viên theo các vai trò khác nhau trong hệ thống.
+    \item \textbf{Quản lý vận hành:} Cung cấp giao diện để nhân viên theo dõi trạng thái hệ thống và dữ liệu sản phẩm.
+\end{itemize}
+
+\subsection{Mô hình dữ liệu (Data Models)}
+\begin{itemize}
+    \item \textbf{Staff:}
+        \begin{itemize}
+            \item \texttt{staff\_id}: Mã nhân viên duy nhất.
+            \item \texttt{name, phone, email}: Thông tin liên lạc cá nhân.
+            \item \texttt{username, password}: Thông tin đăng nhập.
+            \item \texttt{role}: Vai trò (Admin, Manager, v.v.).
+        \end{itemize}
+\end{itemize}
+
+\subsection{Giao diện lập trình ứng dụng (API Endpoints)}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|p{4cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Endpoint} & \textbf{Method} & \textbf{Tác dụng} & \textbf{Dữ liệu yêu cầu} & \textbf{Dữ liệu trả về} \\ \hline
+\texttt{/login/} & POST & Đăng nhập quản trị & Credentials & Staff Profile \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Thiết kế và Triển khai AI Service}
+Thành phần thông minh hỗ trợ tư vấn bán hàng tự động dựa trên tri thức thực tế.
+
+\subsection{Logic nghiệp vụ}
+\begin{itemize}
+    \item \textbf{Truy vấn tri thức thời gian thực:} Trích xuất dữ liệu từ Neo4j để đảm bảo chatbot luôn nắm bắt được kho hàng thực tế.
+    \item \textbf{Xử lý ngôn ngữ tự nhiên (NLP):} Sử dụng LLM để hiểu ý định người dùng và chuyển đổi dữ liệu thô từ database thành câu trả lời tự nhiên.
+    \item \textbf{Giới hạn phạm vi tư vấn (Guardrailing):} Đảm bảo AI chỉ tư vấn các sản phẩm có sẵn trong danh mục hệ thống.
+\end{itemize}
+
+\subsection{Mô hình tri thức (Knowledge Base)}
+Dịch vụ này không sở hữu cơ sở dữ liệu quan hệ mà tương tác trực tiếp với đồ thị tri thức:
+\begin{itemize}
+    \item \textbf{Nodes:} \texttt{Laptop, Mobile, CPU, GPU, RAM, Manufacturer}.
+    \item \textbf{Relationships:} Ánh xạ các đặc tính kỹ thuật vào thực thể sản phẩm để AI có thể "suy luận" và so sánh cấu hình.
+\end{itemize}
+
+\subsection{Giao diện lập trình ứng dụng (API Endpoints)}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|p{4cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Endpoint} & \textbf{Method} & \textbf{Tác dụng} & \textbf{Dữ liệu yêu cầu} & \textbf{Dữ liệu trả về} \\ \hline
+\texttt{/chat/} & POST & Tư vấn sản phẩm & \texttt{message, type} & Câu trả lời từ AI \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Kiến trúc API Gateway và Điều phối}
+Để che giấu sự phức tạp của hệ thống microservices phía sau, API Gateway được triển khai như một facade duy nhất. Nó chịu trách nhiệm proxy các yêu cầu đến đúng dịch vụ mục tiêu dựa trên đường dẫn URL, đồng thời xử lý các vấn đề xuyên suốt (cross-cutting concerns) như timeout và headers mapping.
+
+
+
+\end{document}

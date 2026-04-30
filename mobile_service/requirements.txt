@@ -2,7 +2,5 @@ Django>=6.0.3
 djangorestframework
 psycopg2-binary
 django-cors-headers
-transformers
-accelerate
 neomodel
 neo4j

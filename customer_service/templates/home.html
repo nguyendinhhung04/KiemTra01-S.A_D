@@ -328,11 +328,7 @@
             </div>
             <div id="chatMessages" class="chat-messages">
                 <div class="message bot">
-                    Hello! How can I help you today?
-                    <div id="initialOptions" class="chat-options">
-                        <button class="option-btn" onclick="selectService('mobile')">Ask about Mobiles</button>
-                        <button class="option-btn" onclick="selectService('laptop')">Ask about Laptops</button>
-                    </div>
+                    Hello! I'm your Product Assistant. I can help you find the perfect Laptop or Mobile. What are you looking for today?
                 </div>
             </div>
             <div id="typingIndicator" class="typing-indicator" style="padding: 0 15px;">Assistant is typing...</div>
@@ -437,31 +433,9 @@
         }
 
         /* Chatbot JavaScript */
-        let currentService = null;
-
         function toggleChat() {
             const window = document.getElementById('chatWindow');
             window.style.display = window.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function selectService(service) {
-            currentService = service;
-            const messagesContainer = document.getElementById('chatMessages');
-            
-            const userMsg = document.createElement('div');
-            userMsg.className = 'message user';
-            userMsg.textContent = `I want to ask about ${service === 'mobile' ? 'Mobiles' : 'Laptops'}.`;
-            messagesContainer.appendChild(userMsg);
-            
-            const botMsg = document.createElement('div');
-            botMsg.className = 'message bot';
-            botMsg.textContent = `Great! What would you like to know about our ${service}s?`;
-            messagesContainer.appendChild(botMsg);
-            
-            // Hide initial options
-            document.getElementById('initialOptions').style.display = 'none';
-            
-            scrollToBottom();
         }
 
         async function sendMessage() {
@@ -469,12 +443,6 @@
             const message = input.value.trim();
             if (!message) return;
             
-            if (!currentService) {
-                addMessage("Please select a category first (Mobile or Laptop)!", 'bot');
-                input.value = '';
-                return;
-            }
-
             input.value = '';
             addMessage(message, 'user');
             
@@ -482,14 +450,14 @@
             scrollToBottom();
 
             try {
-                const endpoint = currentService === 'mobile' 
-                    ? 'http://localhost:8005/api/mobile-service/mobile/api/chatbot/' 
-                    : 'http://localhost:8005/api/laptop-service/laptop/api/chatbot/';
+                const endpoint = 'http://localhost:8005/api/ai-service/ai/chat/';
                     
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ 
+                        message: message
+                    })
                 });
 
                 const data = await response.json();

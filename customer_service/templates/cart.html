@@ -501,14 +501,15 @@
             scrollToBottom();
 
             try {
-                const endpoint = currentService === 'mobile' 
-                    ? 'http://localhost:8005/api/mobile-service/mobile/api/chatbot/' 
-                    : 'http://localhost:8005/api/laptop-service/laptop/api/chatbot/';
+                const endpoint = 'http://localhost:8005/api/ai-service/ai/chat/';
                     
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ 
+                        message: message,
+                        type: currentService
+                    })
                 });
 
                 const data = await response.json();

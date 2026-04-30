@@ -15,8 +15,8 @@ config.DATABASE_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:password@ne
 
 from mobiles.graph_models import Mobile, Manufacturer, Category, CPU, GPU, RAM, Camera
 
-def wait_for_neo4j(max_retries=30, delay=2):
-    """Wait for Neo4j to be available"""
+def wait_for_neo4j(max_retries=60, delay=5):
+    """Wait for Neo4j to be available (Total 5 minutes)"""
     for attempt in range(max_retries):
         try:
             from neomodel import db
