@@ -82,7 +82,7 @@ services:
       - "8006:8000"
     environment:
       - NEO4J_BOLT_URL=bolt://neo4j:password@neo4j:7687
-      - HF_TOKEN={your-token-here}
+      - HF_TOKEN=your-token-here
       - HF_HOME=/app/hf_cache
     volumes:
       - hf_cache:/app/hf_cache

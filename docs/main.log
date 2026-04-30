@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.4.29)  30 APR 2026 12:02
+This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.4.29)  30 APR 2026 23:42
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -600,79 +600,117 @@ Chương 2.
 [4
 
 ] [5]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 187
-.
+File: Class Diagram.png Graphic file (type bmp)
+<Class Diagram.png>
+File: Customer_DB.png Graphic file (type bmp)
+<Customer_DB.png>
 
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[6]
+Overfull \hbox (88.59555pt too wide) in paragraph at lines 222--222
+[]                                   \TU/lmtt/m/n/12 choices=(('MOBILE', 'MOBIL
+E'), ('LAPTOP', 'LAPTOP')))[] 
+ []
+
+LaTeX Font Info:    Trying to load font information for U+msa on input line 234
+.
 (C:\Users\dinhh\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 187
+LaTeX Font Info:    Trying to load font information for U+msb on input line 234
 .
 
 (C:\Users\dinhh\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \hbox (badness 7558) in paragraph at lines 190--190
+Underfull \hbox (badness 7558) in paragraph at lines 237--237
 []\TU/TimesNewRoman(0)/m/n/12 Thông tin Cus-
  []
 
 
-Underfull \hbox (badness 4582) in paragraph at lines 191--191
+Underfull \hbox (badness 4582) in paragraph at lines 238--238
 []\TU/TimesNewRoman(0)/m/n/12 Username, Pass-
  []
 
 
-Underfull \hbox (badness 1117) in paragraph at lines 191--191
+Underfull \hbox (badness 1117) in paragraph at lines 238--238
 []\TU/TimesNewRoman(0)/m/n/12 Thông tin khách
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 193--193
+Underfull \hbox (badness 10000) in paragraph at lines 240--240
 []\TU/lmtt/m/n/12 item_id,
  []
 
 
-Overfull \hbox (3.43956pt too wide) in paragraph at lines 187--195
- [][] 
- []
-
-[6]
-Underfull \hbox (badness 10000) in paragraph at lines 227--227
-[]\TU/TimesNewRoman(0)/m/n/12 Lấy danh sách sản
- []
-
-
-Overfull \hbox (21.97955pt too wide) in paragraph at lines 224--231
+Overfull \hbox (3.43956pt too wide) in paragraph at lines 234--242
  [][] 
  []
 
 [7]
-Overfull \hbox (15.79956pt too wide) in paragraph at lines 255--261
+File: Laptop_DB.png Graphic file (type bmp)
+<Laptop_DB.png>
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[8]
+Overfull \hbox (14.43582pt too wide) in paragraph at lines 303--303
+[]    \TU/lmtt/m/n/12 manufacturer = models.ForeignKey(Manufacturer, on_delete=
+models.CASCADE)[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 318--318
+[]\TU/TimesNewRoman(0)/m/n/12 Lấy danh sách sản
+ []
+
+
+Overfull \hbox (21.97955pt too wide) in paragraph at lines 315--322
  [][] 
  []
 
-[8] [9] (main.aux)
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[9]
+File: Mobile_DB.png Graphic file (type bmp)
+<Mobile_DB.png>
+ [10]
+Overfull \hbox (14.43582pt too wide) in paragraph at lines 374--374
+[]    \TU/lmtt/m/n/12 manufacturer = models.ForeignKey(Manufacturer, on_delete=
+models.CASCADE)[] 
+ []
+
+
+Overfull \hbox (15.79956pt too wide) in paragraph at lines 386--392
+ [][] 
+ []
+
+[11]
+File: Staff_DB.png Graphic file (type bmp)
+<Staff_DB.png>
+ [12] [13]
+Chương 3.
+[14
+
+] [15] [16] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
  ***********
-
-
-Package rerunfilecheck Warning: File `main.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `main.out':
-(rerunfilecheck)             Before: 25FB485FE83118227E397C6D1902F41C;10913
-(rerunfilecheck)             After:  81BC694E11A08DBA70F51FF7AE738C81;11829.
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: 6C0E19A75AF005B70F37117E198E6324;13676.
  ) 
 Here is how much of TeX's memory you used:
- 14045 strings out of 402806
- 265228 string characters out of 5445114
- 759806 words of memory out of 5000000
- 42784 multiletter control sequences out of 15000+600000
+ 14110 strings out of 402806
+ 266505 string characters out of 5445114
+ 762997 words of memory out of 5000000
+ 42843 multiletter control sequences out of 15000+600000
  632910 words of font info for 82 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 73i,10n,93p,496b,560s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 73i,10n,93p,518b,483s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (9 pages).
+Output written on main.pdf (16 pages).

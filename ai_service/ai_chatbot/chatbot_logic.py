@@ -89,37 +89,43 @@ def get_knowledge_base():
         logger.error(f"Error querying Neo4j: {e}")
         return []
 
+import traceback
+
 def chat(user_message: str) -> str:
-    logger.info(f"Received message: {user_message}")
-    items = get_knowledge_base()
-    # Bay gio AI se doc toan bo danh sach san pham
-    logger.info(f"Using all {len(items)} products for context")
-    
-    if not items:
-        product_text = "Hien chua co san pham nao."
-    else:
-        # Giu format ngan gon de CPU khong bi qua tai khi doc prompt
-        product_text = "\n".join(
-            f"- {p['name']} ({p['price']}$): {p['specs']}"
-            for p in items
-        )
+    try:
+        logger.info(f"Received message: {user_message}")
+        items = get_knowledge_base()
+        logger.info(f"Using all {len(items)} products for context")
+        
+        if not items:
+            product_text = "Hien chua co san pham nao."
+        else:
+            product_text = "\n".join(
+                f"- {p['name']} ({p['price']}$): {p['specs']}"
+                for p in items
+            )
 
-    system_prompt = f"Ban la tro ly tu van Laptop/Mobile. DS san pham:\n{product_text}\nTra loi cuc ngan bang tieng Viet."
+        system_prompt = f"Ban la tro ly ban hang. San pham: {product_text}. Tra loi ngan gon bang tieng Viet."
 
-    logger.info("Getting pipe...")
-    pipe = get_chatbot_pipe()
-    prompt = f"<|system|>\n{system_prompt}</s>\n<|user|>\n{user_message}</s>\n<|assistant|>\n"
-    
-    logger.info("Starting model inference with full context...")
-    with torch.no_grad():
-        outputs = pipe(
-            prompt,
-            max_new_tokens=32,
-            do_sample=False,
-            pad_token_id=pipe.tokenizer.eos_token_id
-        )
-    logger.info("Inference completed")
+        logger.info("Getting pipe...")
+        pipe = get_chatbot_pipe()
+        prompt = f"<|system|>\n{system_prompt}</s>\n<|user|>\n{user_message}</s>\n<|assistant|>\n"
+        
+        logger.info("Starting model inference...")
+        with torch.no_grad():
+            outputs = pipe(
+                prompt,
+                max_new_tokens=64,
+                do_sample=False,
+                pad_token_id=pipe.tokenizer.eos_token_id,
+                # Bo qua cac tham so gay canh bao neu can
+            )
+        logger.info("Inference completed")
 
-    full_response = outputs[0]["generated_text"]
-    reply = full_response.split("<|assistant|>\n")[-1]
-    return reply.strip()
+        full_response = outputs[0]["generated_text"]
+        reply = full_response.split("<|assistant|>\n")[-1]
+        return reply.strip()
+    except Exception as e:
+        logger.error(f"Error in chat logic: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise e

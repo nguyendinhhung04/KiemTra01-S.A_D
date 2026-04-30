@@ -181,6 +181,53 @@ Hệ thống sử dụng các thực thể chính sau:
         \end{itemize}
 \end{itemize}
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{"Class Diagram.png"}
+    \caption{Sơ đồ lớp (Class Diagram)}
+    \label{fig:class-diagram}
+\end{figure}
+
+\subsection{Thiết kế CSDL}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Customer_DB.png}
+    \caption{Thiết kế Cơ sở dữ liệu Customer Service}
+    \label{fig:customer-db}
+\end{figure}
+
+\subsection{Xây dựng cơ sở dữ liệu}
+\textbf{Cơ sở dữ liệu sử dụng:} MySQL.
+
+\textbf{Lý do lựa chọn:} MySQL là hệ quản trị cơ sở dữ liệu quan hệ (RDBMS) phổ biến, mã nguồn mở, có hiệu suất cao cho các tác vụ đọc/ghi thông tin người dùng và giỏ hàng. Nó đảm bảo tính nhất quán dữ liệu (ACID) cần thiết cho các giao dịch liên quan đến khách hàng.
+
+\textbf{Mã nguồn định nghĩa các bảng (Django Models):}
+\begin{verbatim}
+class Customer(models.Model):
+    name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=20)
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, unique=True)
+    password = models.CharField(max_length=255)
+
+class Cart(models.Model):
+    customer = models.OneToOneField(Customer, on_delete=models.CASCADE)
+
+class CartItem(models.Model):
+    item_id = models.IntegerField()
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    product_type = models.CharField(max_length=10, 
+                                   choices=(('MOBILE', 'MOBILE'), ('LAPTOP', 'LAPTOP')))
+\end{verbatim}
+
+\textbf{Phương pháp Seed dữ liệu:}
+Hệ thống sử dụng Django Management Command để khởi tạo dữ liệu mẫu. Lệnh thực hiện:
+\begin{verbatim}
+python manage.py seed_db
+\end{verbatim}
+Dữ liệu được tạo bao gồm các tài khoản khách hàng mặc định và giỏ hàng trống tương ứng để sẵn sàng cho việc mua sắm.
+
 \subsection{Giao diện lập trình ứng dụng (API Endpoints)}
 \begin{table}[h!]
 \centering
@@ -218,6 +265,50 @@ Dịch vụ quản lý kho dữ liệu và đặc tính kỹ thuật của các 
         \end{itemize}
 \end{itemize}
 
+\subsection{Thiết kế CSDL}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Laptop_DB.png}
+    \caption{Thiết kế Cơ sở dữ liệu Laptop Service}
+    \label{fig:laptop-db}
+\end{figure}
+
+\subsection{Xây dựng cơ sở dữ liệu}
+\textbf{Cơ sở dữ liệu sử dụng:} PostgreSQL (Relational) và Neo4j (Graph).
+
+\textbf{Lý do lựa chọn:} 
+\begin{itemize}
+    \item \textbf{PostgreSQL:} Được sử dụng để lưu trữ dữ liệu sản phẩm có cấu trúc chặt chẽ. PostgreSQL hỗ trợ tốt các kiểu dữ liệu phức tạp và khả năng mở rộng mạnh mẽ cho danh mục sản phẩm lớn.
+    \item \textbf{Neo4j:} Được sử dụng để lưu trữ các mối quan hệ kỹ thuật giữa Laptop và phần cứng (CPU, GPU, RAM). Điều này cho phép AI Service truy vấn và so sánh cấu hình một cách nhanh chóng thông qua các thuật toán đồ thị.
+\end{itemize}
+
+\textbf{Mã nguồn định nghĩa các bảng (Django Models):}
+\begin{verbatim}
+class Manufacturer(models.Model):
+    name = models.CharField(max_length=255)
+
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+
+class Laptop(models.Model):
+    name = models.CharField(max_length=255)
+    img_url = models.URLField(max_length=500)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    ram = models.CharField(max_length=50)
+    cpu = models.CharField(max_length=255)
+    gpu = models.CharField(max_length=255)
+    screen = models.CharField(max_length=255)
+\end{verbatim}
+
+\textbf{Phương pháp Seed dữ liệu:}
+Dữ liệu được khởi tạo thông qua script Python độc lập. Lệnh thực hiện:
+\begin{verbatim}
+python seed_db.py
+\end{verbatim}
+Script này sẽ tự động tạo các bản ghi cho Hãng sản xuất, Danh mục và danh sách các Laptop mẫu cùng thông số kỹ thuật chi tiết.
+
 \subsection{Giao diện lập trình ứng dụng (API Endpoints)}
 \begin{table}[h!]
 \centering
@@ -248,6 +339,46 @@ Quản lý dải sản phẩm thiết bị di động và các đặc thù công
             \item \texttt{manufacturer, category}: Tham chiếu thực thể cha.
         \end{itemize}
 \end{itemize}
+
+\subsection{Thiết kế CSDL}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Mobile_DB.png}
+    \caption{Thiết kế Cơ sở dữ liệu Mobile Service}
+    \label{fig:mobile-db}
+\end{figure}
+
+\subsection{Xây dựng cơ sở dữ liệu}
+\textbf{Cơ sở dữ liệu sử dụng:} PostgreSQL và Neo4j.
+
+\textbf{Lý do lựa chọn:} Tương tự như Laptop Service, Mobile Service sử dụng PostgreSQL cho các thuộc tính thương mại và Neo4j cho các mối quan hệ kỹ thuật. Sự kết hợp này giúp hệ thống vừa đảm bảo tính nhất quán giao dịch, vừa tối ưu cho các tính năng thông minh của AI Chatbot khi cần so sánh các thông số như Camera hay dung lượng Pin giữa các dòng điện thoại.
+
+\textbf{Mã nguồn định nghĩa các bảng (Django Models):}
+\begin{verbatim}
+class Manufacturer(models.Model):
+    name = models.CharField(max_length=255)
+
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+
+class Mobile(models.Model):
+    name = models.CharField(max_length=255)
+    img_url = models.URLField(max_length=500)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    ram = models.CharField(max_length=50)
+    cpu = models.CharField(max_length=255)
+    gpu = models.CharField(max_length=255)
+    camera = models.CharField(max_length=255)
+\end{verbatim}
+
+\textbf{Phương pháp Seed dữ liệu:}
+Sử dụng Django Management Command để khởi tạo danh mục điện thoại. Lệnh thực hiện:
+\begin{verbatim}
+python manage.py seed_db
+\end{verbatim}
+Dữ liệu mẫu bao gồm các dòng Flagship phổ biến như iPhone, Samsung Galaxy, Xiaomi,... cùng các thông số phần cứng tương ứng.
 
 \subsection{Giao diện lập trình ứng dụng (API Endpoints)}
 \begin{table}[h!]
@@ -280,6 +411,38 @@ Hệ thống quản trị dành cho nhân sự vận hành sàn thương mại �
         \end{itemize}
 \end{itemize}
 
+\subsection{Thiết kế CSDL}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Staff_DB.png}
+    \caption{Thiết kế Cơ sở dữ liệu Staff Service}
+    \label{fig:staff-db}
+\end{figure}
+
+\subsection{Xây dựng cơ sở dữ liệu}
+\textbf{Cơ sở dữ liệu sử dụng:} MySQL.
+
+\textbf{Lý do lựa chọn:} MySQL cung cấp cơ chế bảo mật và quản lý người dùng mạnh mẽ, phù hợp để lưu trữ thông tin nhân sự và quyền hạn truy cập hệ thống. Tính ổn định và khả năng xử lý đồng thời của MySQL giúp nhân viên thực hiện các thao tác quản trị một cách mượt mà.
+
+\textbf{Mã nguồn định nghĩa các bảng (Django Models):}
+\begin{verbatim}
+class Staff(models.Model):
+    staff_id = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=20)
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, unique=True)
+    password = models.CharField(max_length=255)
+    role = models.CharField(max_length=100)
+\end{verbatim}
+
+\textbf{Phương pháp Seed dữ liệu:}
+Lệnh thực hiện:
+\begin{verbatim}
+python manage.py seed_db
+\end{verbatim}
+Dữ liệu khởi tạo bao gồm tài khoản Quản trị hệ thống (System Administrator) và các nhân viên mẫu với các vai trò khác nhau (Admin, Manager, Staff) để phục vụ việc kiểm thử phân quyền.
+
 \subsection{Giao diện lập trình ứng dụng (API Endpoints)}
 \begin{table}[h!]
 \centering
@@ -290,32 +453,68 @@ Hệ thống quản trị dành cho nhân sự vận hành sàn thương mại �
 \end{tabular}
 \end{table}
 
-\section{Thiết kế và Triển khai AI Service}
-Thành phần thông minh hỗ trợ tư vấn bán hàng tự động dựa trên tri thức thực tế.
+\chapter{AI Service}
 
-\subsection{Logic nghiệp vụ}
+\section{Mục đích của AI Service}
+AI Service trong hệ thống được xây dựng nhằm mục đích tối ưu hóa quy trình tư vấn khách hàng. Thay vì nhân viên phải trực tiếp trả lời các thắc mắc lặp đi lặp lại về thông số kỹ thuật, AI Service đóng vai trò là một trợ lý ảo thông minh:
 \begin{itemize}
-    \item \textbf{Truy vấn tri thức thời gian thực:} Trích xuất dữ liệu từ Neo4j để đảm bảo chatbot luôn nắm bắt được kho hàng thực tế.
-    \item \textbf{Xử lý ngôn ngữ tự nhiên (NLP):} Sử dụng LLM để hiểu ý định người dùng và chuyển đổi dữ liệu thô từ database thành câu trả lời tự nhiên.
-    \item \textbf{Giới hạn phạm vi tư vấn (Guardrailing):} Đảm bảo AI chỉ tư vấn các sản phẩm có sẵn trong danh mục hệ thống.
+    \item \textbf{Tư vấn 24/7:} Phản hồi khách hàng ngay lập tức tại mọi thời điểm.
+    \item \textbf{Độ chính xác cao:} Cung cấp thông tin dựa trên dữ liệu thực tế được trích xuất từ kho hàng.
+    \item \textbf{Cá nhân hóa trải nghiệm:} Hiểu ý định người dùng để đưa ra các gợi ý sản phẩm phù hợp.
 \end{itemize}
 
-\subsection{Mô hình tri thức (Knowledge Base)}
-Dịch vụ này không sở hữu cơ sở dữ liệu quan hệ mà tương tác trực tiếp với đồ thị tri thức:
+\section{Kiến trúc tổng quan AI Service}
+Dịch vụ được xây dựng trên nền tảng Django REST Framework, tích hợp trực tiếp các thư viện học máy hiện đại:
 \begin{itemize}
-    \item \textbf{Nodes:} \texttt{Laptop, Mobile, CPU, GPU, RAM, Manufacturer}.
-    \item \textbf{Relationships:} Ánh xạ các đặc tính kỹ thuật vào thực thể sản phẩm để AI có thể "suy luận" và so sánh cấu hình.
+    \item \textbf{Hugging Face Transformers:} Thư viện lõi để triển khai và chạy mô hình ngôn ngữ lớn (LLM).
+    \item \textbf{Neomodel:} Thư viện Object-Graph Mapping (OGM) để giao tiếp với cơ sở dữ liệu đồ thị Neo4j.
+    \item \textbf{PyTorch:} Backend tính toán cho mô hình AI.
+    \item \textbf{Background Loading:} Mô hình AI được tải trong một tiến trình chạy ngầm (threading) để không làm gián đoạn quá trình khởi động của server.
 \end{itemize}
 
-\subsection{Giao diện lập trình ứng dụng (API Endpoints)}
-\begin{table}[h!]
-\centering
-\begin{tabular}{|l|c|p{4cm}|p{3cm}|p{3cm}|}
-\hline
-\textbf{Endpoint} & \textbf{Method} & \textbf{Tác dụng} & \textbf{Dữ liệu yêu cầu} & \textbf{Dữ liệu trả về} \\ \hline
-\texttt{/chat/} & POST & Tư vấn sản phẩm & \texttt{message, type} & Câu trả lời từ AI \\ \hline
-\end{tabular}
-\end{table}
+\section{Logic hoạt động của Chatbot}
+Quy trình xử lý một yêu cầu của chatbot diễn ra theo các bước sau:
+\begin{enumerate}
+    \item \textbf{Tiếp nhận:} API nhận \texttt{user\_message} từ client qua phương thức POST.
+    \item \textbf{Trích xuất tri thức:} Hệ thống gọi hàm \texttt{get\_knowledge\_base()} để lấy toàn bộ thông tin sản phẩm (Laptop và Mobile) từ Neo4j.
+    \item \textbf{Xây dựng ngữ cảnh (Context):} Dữ liệu thô từ database được định dạng thành văn bản liệt kê tên sản phẩm, giá và cấu hình.
+    \item \textbf{Tạo Prompt:} Kết hợp ngữ cảnh sản phẩm và câu hỏi của người dùng vào một cấu trúc template quy định vai trò của trợ lý.
+    \item \textbf{Suy luận (Inference):} Mô hình AI xử lý prompt và sinh câu trả lời.
+    \item \textbf{Phản hồi:} Câu trả lời được tách khỏi định dạng prompt và gửi về cho người dùng.
+\end{enumerate}
+
+\section{Kiến trúc Mô hình AI sử dụng}
+\textbf{Mô hình:} TinyLlama/TinyLlama-1.1B-Chat-v1.0.
+
+\textbf{Cấu hình kỹ thuật:}
+\begin{itemize}
+    \item \textbf{Device:} Chạy trên CPU thay vì GPU.
+    \item \textbf{Dtype:} \texttt{torch.float32} để đảm bảo tính tương thích và chính xác trên CPU.
+    \item \textbf{Max New Tokens:} 64 tokens (giới hạn độ dài câu trả lời để tăng tốc độ phản hồi).
+    \item \textbf{Decoding Strategy:} \texttt{do\_sample=False} (sử dụng Greedy Search để câu trả lời mang tính nhất quán và ổn định nhất).
+\end{itemize}
+
+\textbf{Lý do lựa chọn và Đánh đổi:}
+TinyLlama là mô hình nhỏ gọn với 1,1 tỷ tham số. Việc sử dụng mô hình này giúp hệ thống có thể chạy mượt mà trên môi trường containerized với tài nguyên CPU hạn chế mà không cần đến phần cứng chuyên dụng (GPU). Đánh đổi lại là khả năng lập luận phức tạp của mô hình sẽ hạn chế hơn so với các mô hình lớn (như Llama-2 70B), nhưng hoàn toàn đáp ứng tốt nhu cầu tư vấn thông số sản phẩm đơn giản.
+
+\section{Knowledge Base và Neo4j}
+\textbf{Cấu trúc tri thức:} AI Service sử dụng mô hình dữ liệu đồ thị để biểu diễn sản phẩm.
+\begin{itemize}
+    \item \textbf{Nodes:} Bao gồm các thực thể như \texttt{Laptop}, \texttt{Mobile}, \texttt{CPU}, \texttt{GPU}, \texttt{RAM}, \texttt{Manufacturer}.
+    \item \textbf{Relationships:} Các mối quan hệ như \texttt{HAS\_CPU}, \texttt{MADE\_BY}, \texttt{HAS\_CAMERA} tạo thành một mạng lưới tri thức liên kết.
+\end{itemize}
+
+\textbf{Tại sao sử dụng Neo4j?}
+Khác với SQL, Neo4j cho phép AI Service "nhìn" thấy các mối quan hệ giữa các linh kiện một cách trực tiếp. Điều này cực kỳ hữu ích khi chatbot cần thực hiện các truy vấn so sánh hoặc tìm kiếm sản phẩm có chung một đặc tính kỹ thuật cụ thể (ví dụ: "Tìm các laptop dùng chung CPU Intel Core i7").
+
+\section{Kỹ thuật RAG (Retrieval-Augmented Generation)}
+AI Service áp dụng kỹ thuật RAG đơn giản để khắc phục hiện tượng "ảo giác" (hallucination) của mô hình AI. Thay vì để mô hình tự nhớ thông số sản phẩm (vốn dễ sai lệch), hệ thống thực hiện:
+\begin{itemize}
+    \item \textbf{Retrieval:} Truy xuất thông tin thực tế từ Neo4j ngay tại thời điểm người dùng đặt câu hỏi.
+    \item \textbf{Augmentation:} Bơm dữ liệu vừa truy xuất được vào \texttt{system\_prompt} dưới dạng "Tri thức nền tảng".
+    \item \textbf{Generation:} Yêu cầu mô hình AI chỉ sinh câu trả lời dựa trên những thông tin đã cung cấp.
+\end{itemize}
+Cơ chế này đảm bảo chatbot không bao giờ tư vấn những sản phẩm không có trong kho hàng hoặc sai lệch về giá cả.
 
 \section{Kiến trúc API Gateway và Điều phối}
 Để che giấu sự phức tạp của hệ thống microservices phía sau, API Gateway được triển khai như một facade duy nhất. Nó chịu trách nhiệm proxy các yêu cầu đến đúng dịch vụ mục tiêu dựa trên đường dẫn URL, đồng thời xử lý các vấn đề xuyên suốt (cross-cutting concerns) như timeout và headers mapping.
