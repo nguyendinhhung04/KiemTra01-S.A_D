@@ -216,6 +216,51 @@
             display: none;
             z-index: 1000;
         }
+        /* Voucher Styles */
+        .voucher-banner {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            display: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
+            animation: slideDown 0.5s ease-out;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .voucher-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .voucher-icon { font-size: 3rem; }
+        .voucher-text h3 { margin: 0 0 0.25rem 0; font-size: 1.25rem; }
+        .voucher-text p { margin: 0; opacity: 0.9; }
+        .voucher-badge {
+            background: white;
+            color: #d97706;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+        .voucher-timer {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            text-align: right;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: rgba(0,0,0,0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+        }
 
         /* Chatbot Styles */
         .chat-widget {
@@ -385,6 +430,18 @@
         <div class="welcome-card">
             <h1>Welcome Home!</h1>
             <div id="userDetails"></div>
+        </div>
+
+        <div id="voucherBanner" class="voucher-banner">
+            <div class="voucher-content">
+                <div class="voucher-icon">🎁</div>
+                <div class="voucher-text">
+                    <h3>Ưu đãi đặc biệt cho bạn!</h3>
+                    <p id="voucherMessage"></p>
+                </div>
+                <div class="voucher-badge">GIẢM 50%</div>
+            </div>
+            <div class="voucher-timer">Hết hạn sau: 30:00</div>
         </div>
 
         <div class="search-container">
@@ -573,6 +630,49 @@
             }, 3000);
         }
 
+        async function checkVoucher() {
+            const actions = JSON.parse(sessionStorage.getItem('userActions') || '[]');
+            if (actions.length === 0) return;
+
+            // Prepare data for prediction
+            const user_actions = actions.filter(a => a.product_id).map(a => a.action);
+            const user_products = actions.filter(a => a.product_id).map(a => a.product_id);
+            const user_categories = actions.filter(a => a.product_id).map(a => a.category);
+
+            if (user_actions.length === 0) return;
+
+            try {
+                const res = await fetch('http://localhost:8005/api/ai-service/ai/voucher/predict/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_actions,
+                        user_products,
+                        user_categories
+                    })
+                });
+
+                if (res.ok) {
+                    const results = await res.json();
+                    const topProduct = results[0];
+
+                    if (topProduct && topProduct.probability > 0.7) {
+                        const banner = document.getElementById('voucherBanner');
+                        const message = document.getElementById('voucherMessage');
+                        
+                        // Find product name from cache
+                        const productData = allProducts[topProduct.category].find(p => String(p.id) === String(topProduct.product_id));
+                        const productName = productData ? productData.name : `Sản phẩm ${topProduct.product_id}`;
+
+                        message.innerHTML = `Dựa trên quan tâm của bạn về <strong>${productName}</strong>, chúng tôi tặng bạn mã giảm giá đặc biệt!`;
+                        banner.style.display = 'block';
+                    }
+                }
+            } catch (err) {
+                console.error('Error checking voucher:', err);
+            }
+        }
+
         function logout() {
             localStorage.removeItem('user');
             window.location.href = '/login/';
@@ -584,64 +684,12 @@
             window.style.display = window.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            if (!message) return;
-            
-            input.value = '';
-            addMessage(message, 'user');
-            
-            document.getElementById('typingIndicator').style.display = 'block';
-            scrollToBottom();
-
-            try {
-                const endpoint = 'http://localhost:8005/api/ai-service/ai/chat/';
-                    
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        message: message
-                    })
-                });
-
-                const data = await response.json();
-                document.getElementById('typingIndicator').style.display = 'none';
-                
-                if (data.reply) {
-                    addMessage(data.reply, 'bot');
-                } else {
-                    addMessage("Sorry, I encountered an error. Please try again.", 'bot');
-                }
-            } catch (error) {
-                console.error('Chat error:', error);
-                document.getElementById('typingIndicator').style.display = 'none';
-                addMessage("Sorry, I can't connect to the assistant right now.", 'bot');
-            }
+        async function init() {
+            await fetchProducts();
+            checkVoucher(); // Check for voucher after products are loaded (for cache)
         }
 
-        function addMessage(text, sender) {
-            const container = document.getElementById('chatMessages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${sender}`;
-            msgDiv.textContent = text;
-            container.appendChild(msgDiv);
-            scrollToBottom();
-        }
-
-        function scrollToBottom() {
-            const container = document.getElementById('chatMessages');
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        fetchProducts();
+        init();
     </script>
 </body>
 </html>
