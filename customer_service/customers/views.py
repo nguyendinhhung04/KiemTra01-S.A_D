@@ -1,4 +1,5 @@
 from rest_framework import viewsets, status, response, views
+from rest_framework.decorators import action
 from .models import Customer, Cart, CartItem
 from .serializers import CustomerSerializer, CartSerializer, CartItemSerializer, RegisterSerializer, LoginSerializer
 from django.shortcuts import render
@@ -37,6 +38,12 @@ def home_ui(request):
 def cart_ui(request):
     return render(request, 'cart.html')
 
+def product_detail_ui(request, product_type, product_id):
+    return render(request, 'product_detail.html', {
+        'product_type': product_type,
+        'product_id': product_id
+    })
+
 class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
@@ -44,6 +51,12 @@ class CustomerViewSet(viewsets.ModelViewSet):
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
+
+    @action(detail=True, methods=['post'])
+    def checkout(self, request, pk=None):
+        cart = self.get_object()
+        cart.items.all().delete()
+        return response.Response({'message': 'Order placed successfully'}, status=status.HTTP_200_OK)
 
 class CartItemViewSet(viewsets.ModelViewSet):
     queryset = CartItem.objects.all()

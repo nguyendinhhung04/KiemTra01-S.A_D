@@ -311,7 +311,11 @@
                     <span>Total Amount</span>
                     <span id="totalAmount">$0.00</span>
                 </div>
-                <button class="checkout-btn" onclick="alert('Checkout feature coming soon!')">Proceed to Checkout</button>
+                <button class="checkout-btn" onclick="checkout()">Proceed to Checkout</button>
+            </div>
+            <div id="checkoutSuccess" style="display: none; background: #dcfce7; color: #166534; padding: 1.5rem; border-radius: 0.5rem; margin-top: 1.5rem; text-align: center; border: 1px solid #bbf7d0;">
+                <h3 style="margin: 0 0 0.5rem 0;">🎉 Đặt hàng thành công!</h3>
+                <p style="margin: 0;">Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đang được xử lý.</p>
             </div>
             <a href="/home/" class="back-link">← Continue Shopping</a>
         </div>
@@ -448,6 +452,46 @@
             } catch (err) {
                 console.error('Error removing item:', err);
             }
+        }
+
+        async function checkout() {
+            if (!confirm('Bạn có chắc chắn muốn thanh toán?')) return;
+            try {
+                const res = await fetch(`/api/carts/${user.cart.id}/checkout/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                if (res.ok) {
+                    document.getElementById('checkoutSuccess').style.display = 'block';
+                    document.getElementById('cartItems').innerHTML = '';
+                    document.getElementById('cartSummary').style.display = 'none';
+                    // Scroll to success message
+                    document.getElementById('checkoutSuccess').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
+                }
+            } catch (err) {
+                console.error('Error during checkout:', err);
+                alert('Có lỗi xảy ra khi kết nối đến máy chủ.');
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         }
 
         function logout() {

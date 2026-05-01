@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     CustomerViewSet, CartViewSet, CartItemViewSet, 
     RegisterView, LoginView, 
-    login_ui, register_ui, home_ui, cart_ui
+    login_ui, register_ui, home_ui, cart_ui, product_detail_ui
 )
 
 router = DefaultRouter()
@@ -15,4 +15,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
+    path('product-detail/<str:product_type>/<int:product_id>/', product_detail_ui, name='product-detail'),
 ]

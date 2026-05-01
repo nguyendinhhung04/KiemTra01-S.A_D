@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail - Customer Service</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
+            --text: #111827;
+            --card-bg: white;
+            --secondary: #6366f1;
+            --danger: #ef4444;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            color: var(--text);
+        }
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { text-decoration: none; color: var(--text); font-weight: 500; }
+        .nav-link:hover { color: var(--primary); }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        main {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .detail-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+        }
+        @media (max-width: 768px) {
+            .detail-card { grid-template-columns: 1fr; }
+        }
+        .product-image-placeholder {
+            background: #e5e7eb;
+            aspect-ratio: 1;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #9ca3af;
+        }
+        .info-header { margin-bottom: 2rem; }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: #e0e7ff;
+            color: #4338ca;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+        .product-name {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin: 0 0 1rem 0;
+            color: var(--text);
+        }
+        .product-price {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        .spec-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .spec-item {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .spec-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .spec-value {
+            font-weight: 600;
+            color: var(--text);
+        }
+        .add-to-cart-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .add-to-cart-btn:hover { background: var(--secondary); }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--primary); }
+        .loading { text-align: center; padding: 4rem; color: #6b7280; }
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10b981;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/home/" class="logo">CustomerService</a>
+        <div class="nav-links">
+            <a href="/home/" class="nav-link">Home</a>
+            <a href="/ui/cart/" class="nav-link">Cart</a>
+        </div>
+        <div class="user-info">
+            <span id="userNameDisplay">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+    <main>
+        <a href="/home/" class="back-link">← Back to Products</a>
+        <div id="productDetail">
+            <div class="loading">Loading product details...</div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast">Item added to cart!</div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        const productType = "{{ product_type }}";
+        const productId = "{{ product_id }}";
+
+        if (!user) {
+            window.location.href = '/login/';
+        } else {
+            document.getElementById('userNameDisplay').innerText = `Hello, ${user.name || user.username}`;
+        }
+
+        async function fetchProduct() {
+            try {
+                const servicePort = productType === 'LAPTOP' ? 'laptop-service/laptop' : 'mobile-service/mobile';
+                const res = await fetch(`http://localhost:8005/api/${servicePort}/api/${productType.toLowerCase()}s/${productId}/`);
+                
+                if (res.ok) {
+                    const product = await res.json();
+                    renderDetail(product);
+                } else {
+                    document.getElementById('productDetail').innerHTML = '<div class="loading">Error loading product.</div>';
+                }
+            } catch (err) {
+                console.error('Error fetching product:', err);
+                document.getElementById('productDetail').innerHTML = '<div class="loading">Service unavailable.</div>';
+            }
+        }
+
+        function renderDetail(product) {
+            const container = document.getElementById('productDetail');
+            
+            let specsHTML = '';
+            if (productType === 'LAPTOP') {
+                specsHTML = `
+                    <div class="spec-item"><div class="spec-label">CPU</div><div class="spec-value">${product.cpu || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">RAM</div><div class="spec-value">${product.ram || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">Storage</div><div class="spec-value">${product.storage || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">Screen</div><div class="spec-value">${product.screen || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">VGA</div><div class="spec-value">${product.vga || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">OS</div><div class="spec-value">${product.os || 'N/A'}</div></div>
+                `;
+            } else {
+                specsHTML = `
+                    <div class="spec-item"><div class="spec-label">Brand</div><div class="spec-value">${product.brand || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">Model</div><div class="spec-value">${product.model || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">CPU</div><div class="spec-value">${product.cpu || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">RAM</div><div class="spec-value">${product.ram || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">Camera</div><div class="spec-value">${product.camera || 'N/A'}</div></div>
+                    <div class="spec-item"><div class="spec-label">Screen</div><div class="spec-value">${product.screen || 'N/A'}</div></div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="detail-card">
+                    <div class="product-image-placeholder">
+                        ${productType === 'LAPTOP' ? '💻' : '📱'}
+                    </div>
+                    <div class="product-info">
+                        <div class="info-header">
+                            <span class="badge">${productType}</span>
+                            <h1 class="product-name">${product.name}</h1>
+                            <div class="product-price">$${Number(product.price).toFixed(2)}</div>
+                        </div>
+                        
+                        <h3 style="margin-bottom: 1rem;">Specifications</h3>
+                        <div class="spec-grid">
+                            ${specsHTML}
+                        </div>
+                        
+                        <button class="add-to-cart-btn" onclick="addToCart(${product.id}, '${productType}')">
+                            <span>🛒</span> Add to Shopping Cart
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function addToCart(itemId, productType) {
+            try {
+                const res = await fetch('/api/cart-items/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cart: user.cart.id,
+                        item_id: itemId,
+                        product_type: productType,
+                        quantity: 1
+                    })
+                });
+                if (res.ok) {
+                    showToast();
+                }
+            } catch (err) {
+                console.error('Error adding to cart:', err);
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = '/login/';
+        }
+
+        fetchProduct();
+    </script>
+</body>
+</html>

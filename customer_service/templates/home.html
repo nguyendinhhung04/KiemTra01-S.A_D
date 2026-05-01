@@ -56,6 +56,67 @@
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
         }
+        /* Search Bar Styles */
+        .search-container {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            padding-left: 3rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.25rem;
+        }
+        /* Search Results Styles */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            margin-top: 0.5rem;
+            z-index: 50;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            display: none;
+        }
+        .search-result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background: #f9fafb; }
+        .result-info { display: flex; flex-direction: column; }
+        .result-name { font-weight: 600; color: var(--text); }
+        .result-type { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; }
+        .result-price { font-weight: bold; color: var(--primary); }
+
         .section-title {
             font-size: 1.875rem;
             font-weight: bold;
@@ -99,16 +160,35 @@
             color: #6b7280;
             flex-grow: 1;
         }
-        .add-to-cart {
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 100%;
+        .product-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .view-detail {
+            background: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
             padding: 0.75rem;
             border-radius: 0.5rem;
             cursor: pointer;
             font-weight: 600;
-            margin-top: 1rem;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .view-detail:hover {
+            background: var(--bg);
+        }
+        .add-to-cart {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
             transition: background 0.2s;
         }
         .add-to-cart:hover {
@@ -307,6 +387,12 @@
             <div id="userDetails"></div>
         </div>
 
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search products by name..." oninput="handleSearch()" onfocus="handleSearch()">
+            <div id="searchResults" class="search-results"></div>
+        </div>
+
         <h2 class="section-title">Laptops</h2>
         <div id="laptopList" class="product-grid">
             <p>Loading laptops...</p>
@@ -342,6 +428,8 @@
 
     <script>
         const user = JSON.parse(localStorage.getItem('user'));
+        let allProducts = { LAPTOP: [], MOBILE: [] };
+
         if (!user) {
             window.location.href = '/login/';
         } else {
@@ -359,15 +447,15 @@
                 ]);
 
                 if (laptopRes.ok) {
-                    const laptops = await laptopRes.json();
-                    renderProducts('laptopList', laptops, 'LAPTOP');
+                    allProducts.LAPTOP = await laptopRes.json();
+                    renderProducts('laptopList', allProducts.LAPTOP, 'LAPTOP');
                 } else {
                     document.getElementById('laptopList').innerHTML = '<p>Error loading laptops.</p>';
                 }
 
                 if (mobileRes.ok) {
-                    const mobiles = await mobileRes.json();
-                    renderProducts('mobileList', mobiles, 'MOBILE');
+                    allProducts.MOBILE = await mobileRes.json();
+                    renderProducts('mobileList', allProducts.MOBILE, 'MOBILE');
                 } else {
                     document.getElementById('mobileList').innerHTML = '<p>Error loading mobiles.</p>';
                 }
@@ -375,6 +463,45 @@
                 console.error('Error fetching products:', err);
             }
         }
+
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (!query) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            const results = [
+                ...allProducts.LAPTOP.map(p => ({ ...p, type: 'LAPTOP' })),
+                ...allProducts.MOBILE.map(p => ({ ...p, type: 'MOBILE' }))
+            ].filter(p => p.name.toLowerCase().includes(query));
+
+            if (results.length > 0) {
+                resultsContainer.innerHTML = results.map(p => `
+                    <a href="/api/product-detail/${p.type}/${p.id}/" class="search-result-item">
+                        <div class="result-info">
+                            <span class="result-type">${p.type}</span>
+                            <span class="result-name">${p.name}</span>
+                        </div>
+                        <span class="result-price">$${Number(p.price).toFixed(2)}</span>
+                    </a>
+                `).join('');
+                resultsContainer.style.display = 'block';
+            } else {
+                resultsContainer.innerHTML = '<div style="padding: 1rem; text-align: center; color: #6b7280;">No products found</div>';
+                resultsContainer.style.display = 'block';
+            }
+        }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            const container = document.querySelector('.search-container');
+            if (!container.contains(e.target)) {
+                document.getElementById('searchResults').style.display = 'none';
+            }
+        });
 
         function renderProducts(elementId, products, type) {
             const container = document.getElementById(elementId);
@@ -394,7 +521,10 @@
                         }
                     </div>
                     <div class="product-price">$${Number(product.price).toFixed(2)}</div>
-                    <button class="add-to-cart" onclick="addToCart(${product.id}, '${type}')">Add to Cart</button>
+                    <div class="product-actions">
+                        <a href="/api/product-detail/${type}/${product.id}/" class="view-detail">View Detail</a>
+                        <button class="add-to-cart" onclick="addToCart(${product.id}, '${type}')">Add to Cart</button>
+                    </div>
                 </div>
             `).join('');
         }
