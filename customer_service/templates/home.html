@@ -430,6 +430,19 @@
         const user = JSON.parse(localStorage.getItem('user'));
         let allProducts = { LAPTOP: [], MOBILE: [] };
 
+        function logAction(action, productId = null, category = null) {
+            const sessionLogs = JSON.parse(sessionStorage.getItem('userActions') || '[]');
+            const logEntry = {
+                action: action,
+                product_id: productId,
+                category: category,
+                timestamp: new Date().toISOString()
+            };
+            sessionLogs.push(logEntry);
+            sessionStorage.setItem('userActions', JSON.stringify(sessionLogs));
+            console.log('Action logged:', logEntry);
+        }
+
         if (!user) {
             window.location.href = '/login/';
         } else {
@@ -437,6 +450,8 @@
             document.getElementById('userDetails').innerHTML = `
                 <p><strong>Username:</strong> ${user.username} | <strong>Email:</strong> ${user.email}</p>
             `;
+            // Log VIEW action on home page load
+            logAction('VIEW');
         }
 
         async function fetchProducts() {
@@ -480,7 +495,7 @@
 
             if (results.length > 0) {
                 resultsContainer.innerHTML = results.map(p => `
-                    <a href="/api/product-detail/${p.type}/${p.id}/" class="search-result-item">
+                    <a href="/api/product-detail/${p.type}/${p.id}/" class="search-result-item" onclick="logAction('SEARCH', '${p.id}', '${p.type}')">
                         <div class="result-info">
                             <span class="result-type">${p.type}</span>
                             <span class="result-name">${p.name}</span>
@@ -522,8 +537,8 @@
                     </div>
                     <div class="product-price">$${Number(product.price).toFixed(2)}</div>
                     <div class="product-actions">
-                        <a href="/api/product-detail/${type}/${product.id}/" class="view-detail">View Detail</a>
-                        <button class="add-to-cart" onclick="addToCart(${product.id}, '${type}')">Add to Cart</button>
+                        <a href="/api/product-detail/${type}/${product.id}/" class="view-detail" onclick="logAction('CLICK', '${product.id}', '${type}')">View Detail</a>
+                        <button class="add-to-cart" onclick="addToCart('${product.id}', '${type}')">Add to Cart</button>
                     </div>
                 </div>
             `).join('');
@@ -542,6 +557,7 @@
                     })
                 });
                 if (res.ok) {
+                    logAction('ADD_TO_CART', itemId, productType);
                     showToast();
                 }
             } catch (err) {

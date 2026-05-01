@@ -184,10 +184,25 @@
         const productType = "{{ product_type }}";
         const productId = "{{ product_id }}";
 
+        function logAction(action, productId = null, category = null) {
+            const sessionLogs = JSON.parse(sessionStorage.getItem('userActions') || '[]');
+            const logEntry = {
+                action: action,
+                product_id: productId,
+                category: category,
+                timestamp: new Date().toISOString()
+            };
+            sessionLogs.push(logEntry);
+            sessionStorage.setItem('userActions', JSON.stringify(sessionLogs));
+            console.log('Action logged:', logEntry);
+        }
+
         if (!user) {
             window.location.href = '/login/';
         } else {
             document.getElementById('userNameDisplay').innerText = `Hello, ${user.name || user.username}`;
+            // Log VIEW action for specific product
+            logAction('VIEW', productId, productType);
         }
 
         async function fetchProduct() {
@@ -248,7 +263,7 @@
                             ${specsHTML}
                         </div>
                         
-                        <button class="add-to-cart-btn" onclick="addToCart(${product.id}, '${productType}')">
+                        <button class="add-to-cart-btn" onclick="addToCart('${product.id}', '${productType}')">
                             <span>🛒</span> Add to Shopping Cart
                         </button>
                     </div>
@@ -269,6 +284,7 @@
                     })
                 });
                 if (res.ok) {
+                    logAction('ADD_TO_CART', itemId, productType);
                     showToast();
                 }
             } catch (err) {

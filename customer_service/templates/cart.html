@@ -349,10 +349,25 @@
         const user = JSON.parse(localStorage.getItem('user'));
         let productsCache = { LAPTOP: {}, MOBILE: {} };
 
+        function logAction(action, productId = null, category = null) {
+            const sessionLogs = JSON.parse(sessionStorage.getItem('userActions') || '[]');
+            const logEntry = {
+                action: action,
+                product_id: productId,
+                category: category,
+                timestamp: new Date().toISOString()
+            };
+            sessionLogs.push(logEntry);
+            sessionStorage.setItem('userActions', JSON.stringify(sessionLogs));
+            console.log('Action logged:', logEntry);
+        }
+
         if (!user) {
             window.location.href = '/login/';
         } else {
             document.getElementById('userNameDisplay').innerText = `Hello, ${user.name || user.username}`;
+            // Log VIEW action for cart page
+            logAction('VIEW');
         }
 
         async function init() {
@@ -420,7 +435,7 @@
                             <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
                             <span class="qty-val">${item.quantity}</span>
                             <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
-                            <button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button>
+                            <button class="remove-btn" onclick="removeFromCart(${item.id}, '${item.item_id}', '${item.product_type}')">Remove</button>
                         </div>
                     </div>
                 `;
@@ -442,13 +457,16 @@
             }
         }
 
-        async function removeFromCart(cartItemId) {
+        async function removeFromCart(cartItemId, productId, productType) {
             if (!confirm('Are you sure you want to remove this item?')) return;
             try {
                 const res = await fetch(`/api/cart-items/${cartItemId}/`, {
                     method: 'DELETE'
                 });
-                if (res.ok) fetchCart();
+                if (res.ok) {
+                    logAction('REMOVE_FROM_CART', productId, productType);
+                    fetchCart();
+                }
             } catch (err) {
                 console.error('Error removing item:', err);
             }
@@ -465,6 +483,7 @@
                     }
                 });
                 if (res.ok) {
+                    logAction('PURCHASE');
                     document.getElementById('checkoutSuccess').style.display = 'block';
                     document.getElementById('cartItems').innerHTML = '';
                     document.getElementById('cartSummary').style.display = 'none';
