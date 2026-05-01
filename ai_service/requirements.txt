@@ -7,3 +7,5 @@ accelerate
 neomodel
 neo4j
 requests
+tensorflow
+numpy
