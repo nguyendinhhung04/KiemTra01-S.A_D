@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.4.29)  30 APR 2026 23:42
+This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.4.29)  13 MAY 2026 10:18
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -595,11 +595,11 @@ Overfull \hbox (1.45221pt too wide) in paragraph at lines 77--79
  dựa trên ”Complexity-Value Curve”(Đường
  []
 
-[2] [3]
+[2] [3] [4] [5]
 Chương 2.
-[4
+[6
 
-] [5]
+] [7]
 File: Class Diagram.png Graphic file (type bmp)
 <Class Diagram.png>
 File: Customer_DB.png Graphic file (type bmp)
@@ -608,109 +608,158 @@ File: Customer_DB.png Graphic file (type bmp)
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[6]
-Overfull \hbox (88.59555pt too wide) in paragraph at lines 222--222
+[8]
+Overfull \hbox (88.59555pt too wide) in paragraph at lines 279--279
 []                                   \TU/lmtt/m/n/12 choices=(('MOBILE', 'MOBIL
 E'), ('LAPTOP', 'LAPTOP')))[] 
  []
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 234
+LaTeX Font Info:    Trying to load font information for U+msa on input line 291
 .
 (C:\Users\dinhh\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 234
+LaTeX Font Info:    Trying to load font information for U+msb on input line 291
 .
 
 (C:\Users\dinhh\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \hbox (badness 7558) in paragraph at lines 237--237
+Underfull \hbox (badness 7558) in paragraph at lines 294--294
 []\TU/TimesNewRoman(0)/m/n/12 Thông tin Cus-
  []
 
 
-Underfull \hbox (badness 4582) in paragraph at lines 238--238
+Underfull \hbox (badness 4582) in paragraph at lines 295--295
 []\TU/TimesNewRoman(0)/m/n/12 Username, Pass-
  []
 
 
-Underfull \hbox (badness 1117) in paragraph at lines 238--238
+Underfull \hbox (badness 1117) in paragraph at lines 295--295
 []\TU/TimesNewRoman(0)/m/n/12 Thông tin khách
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 240--240
+Underfull \hbox (badness 10000) in paragraph at lines 297--297
 []\TU/lmtt/m/n/12 item_id,
  []
 
 
-Overfull \hbox (3.43956pt too wide) in paragraph at lines 234--242
+Overfull \hbox (3.43956pt too wide) in paragraph at lines 291--299
  [][] 
  []
 
-[7]
+[9]
 File: Laptop_DB.png Graphic file (type bmp)
 <Laptop_DB.png>
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[8]
-Overfull \hbox (14.43582pt too wide) in paragraph at lines 303--303
+[10]
+Overfull \hbox (14.43582pt too wide) in paragraph at lines 360--360
 []    \TU/lmtt/m/n/12 manufacturer = models.ForeignKey(Manufacturer, on_delete=
 models.CASCADE)[] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 318--318
+Underfull \hbox (badness 10000) in paragraph at lines 375--375
 []\TU/TimesNewRoman(0)/m/n/12 Lấy danh sách sản
  []
 
 
-Overfull \hbox (21.97955pt too wide) in paragraph at lines 315--322
+Overfull \hbox (21.97955pt too wide) in paragraph at lines 372--379
  [][] 
  []
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[9]
+[11]
 File: Mobile_DB.png Graphic file (type bmp)
 <Mobile_DB.png>
- [10]
-Overfull \hbox (14.43582pt too wide) in paragraph at lines 374--374
+ [12]
+Overfull \hbox (14.43582pt too wide) in paragraph at lines 431--431
 []    \TU/lmtt/m/n/12 manufacturer = models.ForeignKey(Manufacturer, on_delete=
 models.CASCADE)[] 
  []
 
 
-Overfull \hbox (15.79956pt too wide) in paragraph at lines 386--392
+Overfull \hbox (15.79956pt too wide) in paragraph at lines 443--449
  [][] 
  []
 
-[11]
+[13]
 File: Staff_DB.png Graphic file (type bmp)
 <Staff_DB.png>
- [12] [13]
+ [14] [15]
 Chương 3.
-[14
+[16
 
-] [15] [16] (main.aux)
+]
+File: Thong-so-Tiny_LlaMa.png Graphic file (type bmp)
+<Thong-so-Tiny_LlaMa.png>
+ [17]
+Overfull \hbox (55.94691pt too wide) in paragraph at lines 571--572
+[]\TU/TimesNewRoman(0)/b/n/12 Retrieval: \TU/TimesNewRoman(0)/m/n/12 Hệ thống k
+hông yêu cầu LLM ”nhớ”thông tin. Thay vào đó, hàm \TU/lmtt/m/n/12 get_knowledge
+_base()
+ []
+
+[18]
+Overfull \hbox (1.85468pt too wide) in paragraph at lines 607--608
+[]\TU/TimesNewRoman(0)/b/n/12 Kết quả huấn luyện: \TU/TimesNewRoman(0)/m/n/12 Q
+ua 10 epochs huấn luyện với hàm mất mát \TU/lmtt/m/n/12 binary_crossentropy
+ []
+
+[19]
+Chương 4.
+[20
+
+] [21]
+Overfull \hbox (23.699pt too wide) in paragraph at lines 678--679
+[]\TU/TimesNewRoman(0)/m/n/12 Ví dụ trong \TU/lmtt/m/n/12 api_gateway/gateway/v
+iews.py\TU/TimesNewRoman(0)/m/n/12 , hàm \TU/lmtt/m/n/12 proxy_view \TU/TimesNe
+wRoman(0)/m/n/12 sử dụng thư viện \TU/lmtt/m/n/12 requests
+ []
+
+
+Overfull \hbox (15.52443pt too wide) in paragraph at lines 678--679
+\TU/TimesNewRoman(0)/m/n/12 để thực hiện các cuộc gọi HTTP đến các service nội 
+bộ (\TU/lmtt/m/n/12 laptop-service\TU/TimesNewRoman(0)/m/n/12 , \TU/lmtt/m/n/12
+ mobile-service\TU/TimesNewRoman(0)/m/n/12 ,
+ []
+
+
+Overfull \hbox (27.38106pt too wide) in paragraph at lines 690--691
+[]\TU/TimesNewRoman(0)/b/n/12 Cơ sở dữ liệu: \TU/TimesNewRoman(0)/m/n/12 1 Cont
+ainer Neo4j phục vụ dữ liệu đồ thị. Các DB quan hệ (MySQL/PostgreSQL)
+ []
+
+
+Overfull \hbox (4.97218pt too wide) in paragraph at lines 701--702
+[]\TU/TimesNewRoman(0)/b/n/12 Build Phase: \TU/TimesNewRoman(0)/m/n/12 Docker s
+ẽ đọc các tệp \TU/lmtt/m/n/12 Dockerfile \TU/TimesNewRoman(0)/m/n/12 trong từng
+ thư mục dịch vụ (\TU/lmtt/m/n/12 ai_service\TU/TimesNewRoman(0)/m/n/12 ,
+ []
+
+[22] [23] [24] [25
+
+] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 6C0E19A75AF005B70F37117E198E6324;13676.
+(rerunfilecheck)             Checksum: 3B1F0467AB35BC65EBADD8D9FBD94CC5;19799.
  ) 
 Here is how much of TeX's memory you used:
- 14110 strings out of 402806
- 266505 string characters out of 5445114
- 762997 words of memory out of 5000000
- 42843 multiletter control sequences out of 15000+600000
+ 14134 strings out of 402806
+ 266997 string characters out of 5445114
+ 769481 words of memory out of 5000000
+ 42866 multiletter control sequences out of 15000+600000
  632910 words of font info for 82 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 73i,10n,93p,518b,483s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 73i,10n,93p,554b,568s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (16 pages).
+Output written on main.pdf (25 pages).

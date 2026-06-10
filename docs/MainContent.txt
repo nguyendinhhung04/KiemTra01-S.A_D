@@ -1,8 +1,10 @@
-Chương 3
-AI Service
-1.Mục đích (Phân tích ai-service của tôi đáp ứng cho nhu cầu gì)
-2.Kiến trúc tổng quan Ai-Service
-3.Logic hoạt động (đi sâu vào cách hoạt động của ai-service, chatbot.)
-4.Kiến trúc model Ai sử dụng( các thông số khi chạy của mô hình đang được cài đặt, tại sao phải cài đặt thế, đánh đổi là gì)
-5.Knowleadge Base (mô hình đang đọc knowleadgeBase từ đâu, đọc như nào, cấu trúc csdl neo4j là gì, tại sao phải sử dụng cho ai-service)
-6.RAG trong AI-Service
+5.CaseStudy: Healthcare (Luyện Decomposition)
+5.1.Mô tả bài toán:
+5.2.THiết kế
+5.2.1.Mô tả bài toán(Hệ thống quản lý bệnh viện gồm: Quản lý bệnh nhân, Quản lý bác sĩ, Đặt lịch khám)
+5.2.2.Bước 1: Xác định Domain (Patient Management, Doctor Management, Appointment Scheduling, ....)
+5.2.3.Bước 2: Xác định Bounded Context (Patient Context, Doctor Context, Appointment Context, ....)
+5.2.4.Bước 3: Phân rã thành Microservices (Patient Service, Doctor Service, Appointment Service,....)
+5.2.5.Bước 4: Xác định quan hệ (Appointment phụ thuộc Patient và Doctor, Giao tiếp qua API)
+5.2.6.API
+5.3.Kết luận

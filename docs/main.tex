@@ -102,6 +102,63 @@ Context Map giúp mô tả mối quan hệ giữa các ngữ cảnh:
     \item \textbf{Repositories:} Lớp trung gian giữa Domain và Data Mapping.
 \end{itemize}
 
+\section{Case Study: Healthcare (Luyện Decomposition)}
+\subsection{Mô tả bài toán}
+Để củng cố lý thuyết về DDD và quy trình phân rã Microservices, chúng ta sẽ phân tích một hệ thống quản lý bệnh viện (Hospital Management System - HMS). Mục tiêu là chuyển đổi một hệ thống quản lý bệnh viện từ kiến trúc Monolithic sang Microservices để giải quyết các vấn đề về hiệu suất và khả năng mở rộng khi số lượng bệnh nhân và dịch vụ y tế tăng cao.
+
+\subsection{Thiết kế hệ thống}
+\subsubsection{Mô tả bài toán chi tiết}
+Hệ thống quản lý bệnh viện cốt lõi tập trung vào việc số hóa các quy trình vận hành lâm sàng, bao gồm:
+\begin{itemize}
+    \item \textbf{Quản lý bệnh nhân:} Tiếp nhận, lưu trữ thông tin cá nhân và quản lý hồ sơ bệnh án điện tử.
+    \item \textbf{Quản lý bác sĩ:} Quản lý danh sách nhân sự y tế, chuyên khoa và lịch trực.
+    \item \textbf{Đặt lịch khám:} Tiếp nhận yêu cầu đặt lịch từ bệnh nhân, điều phối phòng khám và thời gian của bác sĩ.
+\end{itemize}
+
+\subsubsection{Bước 1: Xác định Domain}
+Trong hệ thống HMS, các Domain nghiệp vụ chính được xác định bao gồm:
+\begin{itemize}
+    \item \textbf{Patient Management Domain:} Chịu trách nhiệm về mọi dữ liệu liên quan đến người bệnh.
+    \item \textbf{Doctor Management Domain:} Chịu trách nhiệm về nguồn lực y tế.
+    \item \textbf{Appointment Scheduling Domain:} Logic điều phối trung tâm của bệnh viện.
+    \item \textbf{Billing \& Insurance Domain:} Quản lý tài chính và bảo hiểm y tế.
+\end{itemize}
+
+\subsubsection{Bước 2: Xác định Bounded Context}
+Áp dụng chiến lược thiết kế DDD, chúng ta phân tách các ngữ cảnh bao đóng để xác định ranh giới mô hình:
+\begin{itemize}
+    \item \textbf{Patient Context:} Tập trung vào thực thể Bệnh nhân và quy trình đăng ký.
+    \item \textbf{Doctor Context:} Quản lý trạng thái sẵn sàng và thông tin chuyên môn của Bác sĩ.
+    \item \textbf{Appointment Context:} Tập trung vào thực thể Lịch hẹn, nơi kết nối giữa Bệnh nhân và Bác sĩ trong một khung giờ cụ thể.
+\end{itemize}
+
+\subsubsection{Bước 3: Phân rã thành Microservices}
+Dựa trên các Bounded Context, hệ thống được phân rã thành các dịch vụ độc lập về mặt vật lý:
+\begin{itemize}
+    \item \textbf{Patient Service:} Quản lý CRUD thông tin bệnh nhân và hồ sơ cơ bản.
+    \item \textbf{Doctor Service:} Cung cấp thông tin bác sĩ theo chuyên khoa cho các dịch vụ khác.
+    \item \textbf{Appointment Service:} Chứa logic nghiệp vụ phức tạp về việc kiểm tra xung đột lịch và đặt chỗ.
+    \item \textbf{Notification Service:} Dịch vụ phụ trợ gửi thông báo nhắc lịch tự động.
+\end{itemize}
+
+\subsubsection{Bước 4: Xác định quan hệ}
+Mối quan hệ giữa các dịch vụ được thiết lập như sau:
+\begin{itemize}
+    \item Dịch vụ \textbf{Appointment} phụ thuộc vào \textbf{Patient Service} (để lấy thông tin người đặt) và \textbf{Doctor Service} (để xác nhận bác sĩ tiếp nhận).
+    \item Giao tiếp giữa các dịch vụ được thực hiện chủ yếu qua \textbf{REST API} cho các yêu cầu truy vấn thông tin và \textbf{Event-driven} (Message Broker) để cập nhật trạng thái lịch khám.
+\end{itemize}
+
+\subsubsection{Giao diện lập trình ứng dụng (API)}
+Một số API then chốt trong thiết kế:
+\begin{itemize}
+    \item \texttt{POST /appointments/book}: Tiếp nhận yêu cầu đặt lịch mới.
+    \item \texttt{GET /patients/\{id\}/records}: Truy xuất lịch sử khám bệnh của một bệnh nhân.
+    \item \texttt{GET /doctors/availability}: Kiểm tra danh sách bác sĩ có thể tiếp nhận bệnh nhân.
+\end{itemize}
+
+\subsection{Kết luận}
+Thông qua Case Study về Healthcare, chúng ta thấy rằng việc phân rã dựa trên DDD giúp mỗi Microservice tập trung hoàn toàn vào một ngữ cảnh nghiệp vụ duy nhất. Sự độc lập này cho phép đội ngũ phát triển có thể nâng cấp thuật toán đặt lịch trong Appointment Service mà không cần can thiệp hay gây gián đoạn cho Patient Service. Đây chính là giá trị cốt lõi của kiến trúc Microservices trong việc duy trì tính bền vững của các hệ thống phức tạp.
+
 \chapter{Phát triển Hệ thống E-Commerce dựa trên Microservices}
 
 \section{Xác định yêu cầu hệ thống}
@@ -453,72 +510,261 @@ Dữ liệu khởi tạo bao gồm tài khoản Quản trị hệ thống (Syste
 \end{tabular}
 \end{table}
 
-\chapter{AI Service}
+\chapter{AI Service - Hệ thống Tư vấn và Gợi ý thông minh}
 
-\section{Mục đích của AI Service}
-AI Service trong hệ thống được xây dựng nhằm mục đích tối ưu hóa quy trình tư vấn khách hàng. Thay vì nhân viên phải trực tiếp trả lời các thắc mắc lặp đi lặp lại về thông số kỹ thuật, AI Service đóng vai trò là một trợ lý ảo thông minh:
+\section{Mục đích và Vai trò của AI Service}
+Trong bối cảnh hệ thống Microservices hiện đại, AI Service không chỉ đơn thuần là một thành phần bổ trợ mà đóng vai trò là "bộ não" điều phối trải nghiệm người dùng. Dịch vụ này được thiết kế để giải quyết hai bài toán cốt lõi trong thương mại điện tử:
 \begin{itemize}
-    \item \textbf{Tư vấn 24/7:} Phản hồi khách hàng ngay lập tức tại mọi thời điểm.
-    \item \textbf{Độ chính xác cao:} Cung cấp thông tin dựa trên dữ liệu thực tế được trích xuất từ kho hàng.
-    \item \textbf{Cá nhân hóa trải nghiệm:} Hiểu ý định người dùng để đưa ra các gợi ý sản phẩm phù hợp.
+    \item \textbf{Tối ưu hóa quy trình tư vấn (AI Chatbot):} Chuyển đổi từ mô hình hỗ trợ truyền thống sang mô hình tự động hóa thông minh. AI Chatbot không chỉ trả lời dựa trên các kịch bản có sẵn (Rule-based) mà có khả năng hiểu ngữ cảnh và truy xuất thông tin kỹ thuật chính xác từ cơ sở dữ liệu đồ thị, giúp giảm tải tối đa cho đội ngũ nhân sự.
+    \item \textbf{Cá nhân hóa ưu đãi (Voucher Prediction):} Sử dụng các thuật toán học sâu (Deep Learning) để phân tích hành vi người dùng theo chuỗi thời gian. Bằng cách dự báo xác suất mua hàng của người dùng đối với từng sản phẩm cụ thể, hệ thống có thể đưa ra các quyết định tặng Voucher một cách chiến lược, từ đó tối ưu tỷ lệ chuyển đổi (Conversion Rate) và giá trị trung bình đơn hàng.
 \end{itemize}
 
 \section{Kiến trúc tổng quan AI Service}
-Dịch vụ được xây dựng trên nền tảng Django REST Framework, tích hợp trực tiếp các thư viện học máy hiện đại:
+AI Service được triển khai như một Microservice độc lập, tuân thủ kiến trúc không trạng thái (Stateless) để dễ dàng mở rộng theo chiều ngang. Hệ sinh thái kỹ thuật của dịch vụ bao gồm:
 \begin{itemize}
-    \item \textbf{Hugging Face Transformers:} Thư viện lõi để triển khai và chạy mô hình ngôn ngữ lớn (LLM).
-    \item \textbf{Neomodel:} Thư viện Object-Graph Mapping (OGM) để giao tiếp với cơ sở dữ liệu đồ thị Neo4j.
-    \item \textbf{PyTorch:} Backend tính toán cho mô hình AI.
-    \item \textbf{Background Loading:} Mô hình AI được tải trong một tiến trình chạy ngầm (threading) để không làm gián đoạn quá trình khởi động của server.
+    \item \textbf{Framework:} Django REST Framework đóng vai trò là lớp giao diện API, quản lý xác thực và điều phối luồng dữ liệu.
+    \item \textbf{Trí tuệ nhân tạo (LLM \& ML):} Tích hợp \texttt{Hugging Face Transformers} cho các tác vụ xử lý ngôn ngữ tự nhiên và \texttt{TensorFlow/Keras} cho các mô hình dự báo hành vi.
+    \item \textbf{Cơ sở dữ liệu tri thức (Graph Database):} Sử dụng Neo4j để lưu trữ và truy vấn các mối quan hệ phức tạp giữa sản phẩm và thông số kỹ thuật, phục vụ kỹ thuật RAG.
+    \item \textbf{Cơ chế tải mô hình tối ưu:} Áp dụng kỹ thuật Multi-threading để tải các mô hình LLM lớn vào bộ nhớ RAM ngay khi khởi động, đảm bảo tính sẵn sàng cao và giảm thiểu độ trễ cho yêu cầu đầu tiên.
 \end{itemize}
 
-\section{Logic hoạt động của Chatbot}
-Quy trình xử lý một yêu cầu của chatbot diễn ra theo các bước sau:
+\section{Logic hoạt động hệ thống}
+Hệ thống vận hành dựa trên sự kết hợp giữa tri thức tĩnh (dữ liệu sản phẩm) và tri thức động (hành vi người dùng):
 \begin{enumerate}
-    \item \textbf{Tiếp nhận:} API nhận \texttt{user\_message} từ client qua phương thức POST.
-    \item \textbf{Trích xuất tri thức:} Hệ thống gọi hàm \texttt{get\_knowledge\_base()} để lấy toàn bộ thông tin sản phẩm (Laptop và Mobile) từ Neo4j.
-    \item \textbf{Xây dựng ngữ cảnh (Context):} Dữ liệu thô từ database được định dạng thành văn bản liệt kê tên sản phẩm, giá và cấu hình.
-    \item \textbf{Tạo Prompt:} Kết hợp ngữ cảnh sản phẩm và câu hỏi của người dùng vào một cấu trúc template quy định vai trò của trợ lý.
-    \item \textbf{Suy luận (Inference):} Mô hình AI xử lý prompt và sinh câu trả lời.
-    \item \textbf{Phản hồi:} Câu trả lời được tách khỏi định dạng prompt và gửi về cho người dùng.
+    \item \textbf{Đối với Chatbot:} Hệ thống thực hiện quy trình "Truy xuất - Tăng cường - Sinh văn bản" (RAG). Khi nhận được câu hỏi, hệ thống sẽ ánh xạ vào Neo4j để lấy thông tin thực tế, sau đó đưa vào Prompt để LLM xử lý.
+    \item \textbf{Đối với Voucher:} Hệ thống thu thập chuỗi hành vi của người dùng (như VIEW, CLICK, ADD\_TO\_CART) được gửi qua API Gateway. Dữ liệu này được đưa qua mô hình LSTM để tính toán xác suất mua hàng. Nếu xác suất vượt qua một ngưỡng (threshold) nhất định, hệ thống sẽ đề xuất Voucher tương ứng.
 \end{enumerate}
 
-\section{Kiến trúc Mô hình AI sử dụng}
-\textbf{Mô hình:} TinyLlama/TinyLlama-1.1B-Chat-v1.0.
+\section{Hệ thống Chatbot thông minh (AI Consultant)}
 
-\textbf{Cấu hình kỹ thuật:}
+\subsection{Mô hình ngôn ngữ (Large Language Model)}
+Hệ thống sử dụng mô hình \textbf{TinyLlama-1.1B-Chat-v1.0}. Đây là một biến thể nhỏ gọn của kiến trúc Llama, được huấn luyện trên tập dữ liệu 3 nghìn tỷ tokens.
 \begin{itemize}
-    \item \textbf{Device:} Chạy trên CPU thay vì GPU.
-    \item \textbf{Dtype:} \texttt{torch.float32} để đảm bảo tính tương thích và chính xác trên CPU.
-    \item \textbf{Max New Tokens:} 64 tokens (giới hạn độ dài câu trả lời để tăng tốc độ phản hồi).
-    \item \textbf{Decoding Strategy:} \texttt{do\_sample=False} (sử dụng Greedy Search để câu trả lời mang tính nhất quán và ổn định nhất).
+    \item \textbf{Đặc điểm kiến trúc:} Sử dụng 1.1 tỷ tham số, cho phép đạt được sự cân bằng tối ưu giữa khả năng hiểu ngôn ngữ và hiệu năng tính toán.
+    \item \textbf{Lý do sử dụng:} Trong môi trường Microservices thường ưu tiên tính linh hoạt và tiết kiệm tài nguyên, TinyLlama có thể chạy trực tiếp trên CPU với độ trễ thấp, loại bỏ sự phụ thuộc vào các phần cứng GPU đắt đỏ mà vẫn đảm bảo khả năng hội thoại tự nhiên.
+    \item \textbf{Thông số cài đặt và Cơ sở khoa học:}
+        \begin{itemize}
+            \item \textbf{Lựa chọn TinyLlama 1.1B:} Thay vì các mô hình khổng lồ, TinyLlama cho phép triển khai dưới dạng một container nhẹ trong kiến trúc Microservices, giúp tiết kiệm tài nguyên RAM và dễ dàng scale-up mà vẫn đảm bảo khả năng hiểu ngữ cảnh RAG.
+            \item \textbf{Chiến lược giải mã Greedy Search (do\_sample=False):} Đảm bảo tính nhất quán và ổn định (Determinism) tuyệt đối cho các câu trả lời về thông số kỹ thuật, loại bỏ sự sáng tạo ngẫu nhiên có thể dẫn đến sai lệch dữ liệu từ Neo4j.
+            \item \textbf{Tối ưu hóa CPU với float32:} Tận dụng tập lệnh AVX/FMA của vi xử lý hiện đại để đạt tốc độ phản hồi dưới 2 giây mà không cần đầu tư hạ tầng GPU đắt đỏ, tối ưu hóa chi phí vận hành Cloud.
+            \item \textbf{Giới hạn Max New Tokens (64):} Giảm thiểu độ trễ (Latency) và tập trung vào việc đưa ra các thông số cốt lõi, tránh việc sinh văn bản lan man gây nhiễu thông tin cho người dùng.
+        \end{itemize}
 \end{itemize}
 
-\textbf{Lý do lựa chọn và Đánh đổi:}
-TinyLlama là mô hình nhỏ gọn với 1,1 tỷ tham số. Việc sử dụng mô hình này giúp hệ thống có thể chạy mượt mà trên môi trường containerized với tài nguyên CPU hạn chế mà không cần đến phần cứng chuyên dụng (GPU). Đánh đổi lại là khả năng lập luận phức tạp của mô hình sẽ hạn chế hơn so với các mô hình lớn (như Llama-2 70B), nhưng hoàn toàn đáp ứng tốt nhu cầu tư vấn thông số sản phẩm đơn giản.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Thong-so-Tiny_LlaMa.png}
+    \caption{Thông số cấu hình mô hình TinyLlama}
+    \label{fig:tinyllama-specs}
+\end{figure}
 
-\section{Knowledge Base và Neo4j}
-\textbf{Cấu trúc tri thức:} AI Service sử dụng mô hình dữ liệu đồ thị để biểu diễn sản phẩm.
+\subsection{Cơ sở tri thức dựa trên Neo4j}
+Khác với các hệ thống chatbot thông thường sử dụng dữ liệu văn bản thuần túy, Chatbot của chúng tôi sử dụng \textbf{Object-Graph Mapping (OGM)} thông qua Neomodel để truy vấn Neo4j.
 \begin{itemize}
-    \item \textbf{Nodes:} Bao gồm các thực thể như \texttt{Laptop}, \texttt{Mobile}, \texttt{CPU}, \texttt{GPU}, \texttt{RAM}, \texttt{Manufacturer}.
-    \item \textbf{Relationships:} Các mối quan hệ như \texttt{HAS\_CPU}, \texttt{MADE\_BY}, \texttt{HAS\_CAMERA} tạo thành một mạng lưới tri thức liên kết.
+    \item \textbf{Cấu trúc đồ thị:} Mỗi sản phẩm (Laptop/Mobile) là một Node trung tâm, liên kết với các Node linh kiện (CPU, RAM, Camera) qua các quan hệ có hướng như \texttt{HAS\_CPU}, \texttt{MADE\_BY}.
+    \item \textbf{Ưu điểm:} Cho phép chatbot thực hiện các suy luận bắc cầu. Ví dụ, khi hỏi về "Laptop dùng CPU Core i7", chatbot có thể dễ dàng tìm kiếm tất cả các sản phẩm có quan hệ với Node CPU tương ứng, điều mà các DB quan hệ xử lý rất tốn kém về hiệu năng.
 \end{itemize}
 
-\textbf{Tại sao sử dụng Neo4j?}
-Khác với SQL, Neo4j cho phép AI Service "nhìn" thấy các mối quan hệ giữa các linh kiện một cách trực tiếp. Điều này cực kỳ hữu ích khi chatbot cần thực hiện các truy vấn so sánh hoặc tìm kiếm sản phẩm có chung một đặc tính kỹ thuật cụ thể (ví dụ: "Tìm các laptop dùng chung CPU Intel Core i7").
-
-\section{Kỹ thuật RAG (Retrieval-Augmented Generation)}
-AI Service áp dụng kỹ thuật RAG đơn giản để khắc phục hiện tượng "ảo giác" (hallucination) của mô hình AI. Thay vì để mô hình tự nhớ thông số sản phẩm (vốn dễ sai lệch), hệ thống thực hiện:
+\subsection{Kỹ thuật RAG (Retrieval-Augmented Generation)}
+Để giải quyết triệt để vấn đề "ảo giác" của AI, hệ thống áp dụng quy trình RAG chuyên sâu:
 \begin{itemize}
-    \item \textbf{Retrieval:} Truy xuất thông tin thực tế từ Neo4j ngay tại thời điểm người dùng đặt câu hỏi.
-    \item \textbf{Augmentation:} Bơm dữ liệu vừa truy xuất được vào \texttt{system\_prompt} dưới dạng "Tri thức nền tảng".
-    \item \textbf{Generation:} Yêu cầu mô hình AI chỉ sinh câu trả lời dựa trên những thông tin đã cung cấp.
+    \item \textbf{Retrieval:} Hệ thống không yêu cầu LLM "nhớ" thông tin. Thay vào đó, hàm \texttt{get\_knowledge\_base()} sẽ trích xuất trực tiếp dữ liệu thời gian thực từ Neo4j.
+    \item \textbf{Augmentation:} Dữ liệu từ đồ thị được cấu trúc lại thành một ngữ cảnh (Context) giàu thông tin, bao gồm cả tên, giá và thông số chi tiết.
+    \item \textbf{Generation:} LLM được ràng buộc bởi một System Prompt nghiêm ngặt, chỉ cho phép sinh câu trả lời dựa trên ngữ cảnh đã cung cấp, đảm bảo tính xác thực tuyệt đối của thông tin bán hàng.
 \end{itemize}
-Cơ chế này đảm bảo chatbot không bao giờ tư vấn những sản phẩm không có trong kho hàng hoặc sai lệch về giá cả.
 
-\section{Kiến trúc API Gateway và Điều phối}
-Để che giấu sự phức tạp của hệ thống microservices phía sau, API Gateway được triển khai như một facade duy nhất. Nó chịu trách nhiệm proxy các yêu cầu đến đúng dịch vụ mục tiêu dựa trên đường dẫn URL, đồng thời xử lý các vấn đề xuyên suốt (cross-cutting concerns) như timeout và headers mapping.
+\section{Hệ thống Dự báo hành vi và Tặng Voucher}
+
+\subsection{Kiến trúc mô hình Dự báo}
+Hệ thống sử dụng mô hình học sâu đa đầu vào (Multi-input Deep Learning) dựa trên kiến trúc \textbf{LSTM (Long Short-Term Memory)}.
+\begin{itemize}
+    \item \textbf{Tại sao sử dụng LSTM?} Hành vi mua sắm là một chuỗi các sự kiện có sự phụ thuộc lẫn nhau theo thời gian. LSTM với cơ chế "cổng quên" (forget gate) giúp mô hình ghi nhớ các hành vi quan trọng trong quá khứ (như thêm vào giỏ hàng) và bỏ qua các hành vi nhiễu, từ đó dự báo chính xác ý định mua hàng.
+    \item \textbf{Đặc điểm đầu vào:} Mô hình tiếp nhận 3 luồng thông tin đồng thời:
+        \begin{itemize}
+            \item \textbf{Action Sequence:} Chuỗi hành động (View, Click, Search...).
+            \item \textbf{Product Sequence:} Định danh sản phẩm tương tác.
+            \item \textbf{Category Sequence:} Danh mục sản phẩm (Mobile/Laptop).
+        \end{itemize}
+\end{itemize}
+
+\subsection{Quá trình huấn luyện và Phân tích kỹ thuật}
+Quá trình xây dựng mô hình được thực hiện qua các giai đoạn học thuật nghiêm ngặt:
+\begin{enumerate}
+    \item \textbf{Tạo lập dữ liệu mô phỏng (Synthetic Data Generation):} Do đặc thù dữ liệu hành vi người dùng nhạy cảm, chúng tôi xây dựng một tập dữ liệu giả lập gồm 500 người dùng và 100 sản phẩm. Các hành vi được mô phỏng dựa trên phân phối xác suất thực tế (ví dụ: người dùng xem sản phẩm thuộc danh mục yêu thích sẽ có xác suất thêm vào giỏ hàng cao hơn).
+    \item \textbf{Tiền xử lý và Nhúng (Embedding):}
+        \begin{itemize}
+            \item Các hành động được mã hóa thành số nguyên (Label Encoding).
+            \item Sử dụng các lớp \texttt{Embedding} để chuyển đổi các định danh rời rạc thành các vector không gian liên tục. Điều này giúp mô hình "hiểu" được sự tương đồng giữa các hành động hoặc các sản phẩm cùng loại.
+            \item Áp dụng \texttt{pad\_sequences} để đồng nhất độ dài chuỗi hành vi về 10 phần tử, đảm bảo đầu vào cố định cho mạng thần kinh.
+        \end{itemize}
+    \item \textbf{Cấu trúc mạng thần kinh (Model Topology):}
+        \begin{itemize}
+            \item Ba lớp Embedding độc lập cho Action, Product và Category.
+            \item Lớp \texttt{Concatenate} để hội tụ các đặc trưng từ 3 nguồn đầu vào.
+            \item Lớp \textbf{Bidirectional LSTM (32 units)}: Cho phép mô hình học được cả thông tin từ quá khứ đến hiện tại và ngược lại, giúp hiểu sâu sắc ngữ cảnh hành vi.
+            \item Lớp đầu ra \texttt{Dense} với hàm kích hoạt \texttt{Sigmoid} để trả về giá trị xác suất trong khoảng [0, 1].
+        \end{itemize}
+    \item \textbf{Kết quả huấn luyện:} Qua 10 epochs huấn luyện với hàm mất mát \texttt{binary\_crossentropy} và thuật toán tối ưu \texttt{Adam}, mô hình đạt được độ chính xác (Accuracy) xấp xỉ 100\% trên tập dữ liệu mô phỏng. Các chỉ số F1-score và Confusion Matrix cho thấy mô hình có khả năng phân loại cực tốt giữa nhóm người dùng có ý định mua thật sự và nhóm người dùng chỉ tham khảo.
+\end{enumerate}
+
+Mô hình sau khi huấn luyện được đóng gói dưới định dạng \texttt{.keras} và triển khai trong môi trường production, cho phép dự báo thời gian thực ngay khi người dùng tương tác trên ứng dụng web.
 
 
+
+\chapter{Xây dựng hệ thống hoàn chỉnh}
+
+\section{Kiến trúc tổng thể}
+\subsection{Mô hình hệ thống}
+Hệ thống được thiết kế theo kiến trúc Microservices, bao gồm các dịch vụ độc lập giao tiếp qua API Gateway. Các Microservice chính trong hệ thống bao gồm:
+\begin{itemize}
+    \item \textbf{Customer Service:} Quản lý thông tin khách hàng, đăng ký, đăng nhập và giỏ hàng.
+    \item \textbf{Laptop Service:} Quản lý danh mục sản phẩm máy tính xách tay và các thông số kỹ thuật.
+    \item \textbf{Mobile Service:} Quản lý danh mục sản phẩm điện thoại di động và các thông số kỹ thuật.
+    \item \textbf{Staff Service:} Quản lý thông tin nhân viên và các chức năng quản trị nội bộ.
+    \item \textbf{AI Service:} Cung cấp các chức năng tư vấn thông minh (AI Chatbot) và dự báo hành vi người dùng.
+    \item \textbf{API Gateway:} Điểm truy cập duy nhất cho các client, chịu trách nhiệm định tuyến yêu cầu đến các service phù hợp.
+    \item \textbf{Neo4j:} Cơ sở dữ liệu đồ thị được sử dụng bởi Laptop, Mobile và AI Service để lưu trữ các mối quan hệ phức tạp giữa sản phẩm và các thuộc tính.
+\end{itemize}
+
+\subsection{Các nguyên tắc thiết kế Microservice đã áp dụng}
+\begin{itemize}
+    \item \textbf{Database per Service:} Mỗi service sở hữu cơ sở dữ liệu riêng biệt để đảm bảo tính độc lập và bao đóng dữ liệu. Ví dụ, Customer Service sử dụng MySQL, Laptop và Mobile Service sử dụng PostgreSQL cho dữ liệu quan hệ và chia sẻ Neo4j cho dữ liệu đồ thị.
+    \item \textbf{API Gateway Pattern:} Mọi yêu cầu từ client đều đi qua API Gateway, giúp quản lý tập trung việc định tuyến, xác thực và bảo mật.
+    \item \textbf{Stateless Services:} Hầu hết các service được thiết kế không trạng thái, giúp dễ dàng mở rộng theo chiều ngang.
+\end{itemize}
+
+\subsection{Các flow logic có trong hệ thống}
+\begin{itemize}
+    \item \textbf{Đăng ký/Đăng nhập khách hàng:} Người dùng đăng ký hoặc đăng nhập thông qua API Gateway, yêu cầu được định tuyến đến Customer Service để xử lý và xác thực.
+    \item \textbf{Duyệt sản phẩm:} Người dùng duyệt danh sách Laptop hoặc Mobile thông qua API Gateway, các yêu cầu GET được chuyển đến Laptop Service hoặc Mobile Service.
+    \item \textbf{Thêm sản phẩm vào giỏ hàng:} Khi người dùng thêm sản phẩm vào giỏ, yêu cầu được gửi đến Customer Service. Customer Service quản lý \texttt{CartItem} bao gồm \texttt{item\_id} và \texttt{product\_type} để tham chiếu đến sản phẩm từ các service khác.
+    \item \textbf{Tư vấn AI Chatbot:} Người dùng tương tác với chatbot thông qua AI Service. AI Service sử dụng Neo4j để truy vấn thông tin sản phẩm và mô hình ngôn ngữ để trả lời.
+\end{itemize}
+
+\section{API Gateway}
+API Gateway là điểm vào duy nhất của hệ thống, được triển khai bằng Django. Nó có nhiệm vụ:
+\begin{itemize}
+    \item \textbf{Định tuyến yêu cầu:} Chuyển tiếp các yêu cầu của client đến đúng Microservice thông qua cấu hình trong \texttt{SERVICE\_REGISTRY} (ví dụ: \texttt{api\_gateway/gateway/services.py}).
+    \item \textbf{Cân bằng tải đơn giản:} Mặc dù không phải là một bộ cân bằng tải phức tạp, nhưng nó đóng vai trò phân phối các yêu cầu đến các service nội bộ.
+    \item \textbf{Bảo mật:} Có thể tích hợp logic xác thực và ủy quyền tập trung.
+    \item \textbf{Xử lý ngoại lệ:} Xử lý các lỗi kết nối đến các service backend và trả về phản hồi thích hợp (\texttt{api\_gateway/gateway/views.py}).
+\end{itemize}
+Mỗi service được định nghĩa với một URL nội bộ và thời gian chờ (timeout) cụ thể trong \texttt{SERVICE\_REGISTRY}.
+
+\section{Authentication}
+Cơ chế xác thực trong hệ thống được thiết kế theo mô hình **Phân tán (Decentralized Authentication)** để phù hợp với kiến trúc Microservices, nơi mỗi dịch vụ chịu trách nhiệm quản lý thực thể người dùng của riêng mình.
+
+\subsection{Cơ chế xác thực dựa trên định danh (Credentials-based)}
+Trong phiên bản hiện tại, hệ thống sử dụng cơ chế xác thực đơn giản dựa trên cặp tài khoản/mật khẩu:
+\begin{itemize}
+    \item \textbf{Xác thực Khách hàng:} Xử lý tại \texttt{Customer Service}. Logic kiểm tra được thực hiện trực tiếp trong \texttt{LoginView} bằng cách truy vấn đối tượng \texttt{Customer} khớp với \texttt{username} và \texttt{password} được gửi từ client.
+    \item \textbf{Xác thực Nhân viên:} Xử lý tại \texttt{Staff Service}. Tương tự, \texttt{StaffViewSet} cung cấp một custom action \texttt{login} để kiểm tra tính hợp lệ của nhân viên quản trị.
+\end{itemize}
+
+\subsection{Vai trò của API Gateway trong Authentication}
+API Gateway đóng vai trò là "người vận chuyển" (Proxy). Khi Client gửi yêu cầu đăng nhập, Gateway sẽ định tuyến yêu cầu đó đến Service tương ứng. Sau khi xác thực thành công, Service sẽ trả về toàn bộ thông tin định danh của người dùng (như ID, Role). Client sẽ lưu trữ thông tin này (thường ở LocalStorage hoặc SessionStorage) để sử dụng cho các yêu cầu tiếp theo (như thêm hàng vào giỏ).
+
+\subsection{Hướng phát triển bảo mật}
+Mặc dù cơ chế hiện tại giúp đơn giản hóa việc triển khai prototype, nhưng để đạt chuẩn bảo mật doanh nghiệp, hệ thống đã được thiết kế sẵn sàng để tích hợp:
+\begin{itemize}
+    \item \textbf{JWT (JSON Web Token):} Thay vì trả về thông tin thô, Service sẽ trả về một chuỗi Token đã mã hóa. API Gateway có thể kiểm tra Token này ở tầng middleware trước khi định tuyến.
+    \item \textbf{SSO (Single Sign-On):} Sử dụng một dịch vụ định danh tập trung (như Keycloak) để quản lý chung cho cả khách hàng và nhân viên.
+\end{itemize}
+
+\section{Giao tiếp giữa các service}
+Các Microservice giao tiếp với nhau chủ yếu thông qua HTTP/HTTPS được điều phối bởi API Gateway.
+\begin{itemize}
+    \item API Gateway đóng vai trò trung gian, nhận yêu cầu từ client và gửi đến các service backend.
+    \item Ví dụ trong \texttt{api\_gateway/gateway/views.py}, hàm \texttt{proxy\_view} sử dụng thư viện \texttt{requests} để thực hiện các cuộc gọi HTTP đến các service nội bộ (\texttt{laptop-service}, \texttt{mobile-service}, \texttt{ai-service}).
+    \item Các service không trực tiếp gọi lẫn nhau mà thông qua API Gateway hoặc cơ chế tin nhắn (chưa được triển khai trong phiên bản này).
+    \item Dữ liệu đồ thị (Graph data) được chia sẻ thông qua cơ sở dữ liệu Neo4j, nơi Laptop Service và Mobile Service đẩy dữ liệu lên, và AI Service truy vấn để xây dựng tri thức.
+\end{itemize}
+
+\section{Docker hóa và triển khai}
+Toàn bộ hệ thống được Docker hóa và triển khai thông qua Docker Compose, đảm bảo tính nhất quán giữa các môi trường phát triển và vận hành.
+
+\subsection{Cấu trúc Container hóa}
+Mỗi thành phần trong hệ thống được đóng gói thành một Docker Image riêng biệt:
+\begin{itemize}
+    \item \textbf{Dịch vụ Web (Django):} 6 Container cho 5 Microservices và 1 API Gateway.
+    \item \textbf{Cơ sở dữ liệu:} 1 Container Neo4j phục vụ dữ liệu đồ thị. Các DB quan hệ (MySQL/PostgreSQL) hiện đang được kết nối thông qua địa chỉ host (\texttt{host.docker.internal}) để tối ưu tài nguyên máy chủ.
+\end{itemize}
+
+\subsection{Quy trình khởi chạy với Docker Compose}
+Để triển khai toàn bộ hệ thống, người quản trị chỉ cần thực hiện một lệnh duy nhất:
+\begin{verbatim}
+docker-compose up --build
+\end{verbatim}
+
+\textbf{Chi tiết quá trình thực thi:}
+\begin{enumerate}
+    \item \textbf{Build Phase:} Docker sẽ đọc các tệp \texttt{Dockerfile} trong từng thư mục dịch vụ (\texttt{ai\_service}, \texttt{customer\_service},...), cài đặt các thư viện cần thiết từ \texttt{requirements.txt} và thiết lập biến môi trường.
+    \item \textbf{Network Setup:} Docker Compose tạo ra một mạng ảo nội bộ. Các dịch vụ có thể gọi nhau bằng tên service (ví dụ: \texttt{http://ai-service:8000}) thay vì địa chỉ IP động.
+    \item \textbf{Dependency Management:} Sử dụng chỉ thị \texttt{depends\_on} để đảm bảo cơ sở dữ liệu Neo4j khởi động trước các dịch vụ phụ thuộc như Laptop hay AI Service.
+    \item \textbf{Volume Persistence:} 
+    \begin{itemize}
+        \item \texttt{neo4j\_data}: Lưu trữ dữ liệu đồ thị bền vững ngay cả khi container bị xóa.
+        \item \texttt{hf\_cache}: Lưu trữ các mô hình AI (như TinyLlama) sau lần tải đầu tiên, giúp hệ thống khởi động cực nhanh ở các lần sau.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Cấu hình mạng đặc biệt}
+Sử dụng \texttt{extra\_hosts} với giá trị \texttt{host.docker.internal:host-gateway} cho phép các container có thể truy cập ngược lại các dịch vụ cơ sở dữ liệu đang chạy trực tiếp trên máy host, giải quyết bài toán kết nối giữa môi trường container và môi trường local truyền thống.
+
+\section{Đánh giá}
+\subsection{Hiệu năng}
+\begin{itemize}
+    \item Kiến trúc Microservices cho phép tối ưu hiệu năng bằng cách mở rộng độc lập các service có tải cao. Ví dụ, AI Service có thể được tăng cường tài nguyên khi cần xử lý nhiều yêu cầu chatbot.
+    \item Việc sử dụng các công nghệ phù hợp cho từng mục đích (MySQL cho Customer, PostgreSQL cho Product, Neo4j cho Graph) giúp tối ưu hiệu năng truy vấn dữ liệu.
+    \item API Gateway giúp giảm thiểu overhead và cải thiện thời gian phản hồi bằng cách proxy các yêu cầu một cách hiệu quả.
+\end{itemize}
+
+\subsection{Khả năng mở rộng}
+\begin{itemize}
+    \item Mỗi Microservice là một đơn vị triển khai độc lập, có thể mở rộng theo chiều ngang (thêm instance) mà không ảnh hưởng đến các service khác. Điều này được thể hiện rõ trong \texttt{docker-compose.yml} với việc mỗi service có một \texttt{build} và \texttt{ports} riêng.
+    \item Tính chất không trạng thái của nhiều service (ví dụ: AI Service) cũng hỗ trợ tốt cho việc mở rộng.
+\end{itemize}
+
+\subsection{Ưu/nhược điểm}
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item \textbf{Độc lập phát triển và triển khai:} Các team có thể làm việc trên các service khác nhau mà không bị phụ thuộc.
+    \item \textbf{Khả năng mở rộng linh hoạt:} Từng service có thể được scale độc lập.
+    \item \textbf{Công nghệ đa dạng (Polyglot):} Cho phép sử dụng công nghệ phù hợp nhất cho từng bài toán (ví dụ: Python/Django cho web services, Neo4j cho graph DB).
+    \item \textbf{Khả năng chống lỗi tốt hơn:} Sự cố ở một service ít có khả năng làm sập toàn bộ hệ thống.
+\end{itemize}
+\textbf{Nhược điểm:}
+\begin{itemize}
+    \item \textbf{Độ phức tạp cao:} Yêu cầu quản lý nhiều service, cơ sở dữ liệu và cơ chế giao tiếp phức tạp.
+    \item \textbf{Giao tiếp phân tán:} Giao tiếp qua mạng introduce độ trễ và có thể gây ra vấn đề về nhất quán dữ liệu.
+    \textbf{Vận hành và giám sát:} Đòi hỏi công cụ giám sát và log tập trung.
+\end{itemize}
+
+\chapter*{Tự nhận xét và Đánh giá}
+\addcontentsline{toc}{chapter}{Tự nhận xét và Đánh giá}
+
+Sau khi hoàn thành bài báo cáo và thiết kế hệ thống Microservices tích hợp AI, em xin tự đưa ra một số nhận xét về ưu điểm cũng như những mặt còn hạn chế của mình như sau:
+
+\section*{1. Về nội dung và tính logic}
+\begin{itemize}
+    \item \textbf{Ưu điểm:} Em đã xây dựng được một mạch nội dung tương đối chặt chẽ, đi từ lý thuyết nền tảng (Monolithic vs Microservices) đến các chiến lược thiết kế chuyên sâu (DDD). Việc đưa vào hai Case Study (Healthcare và E-Commerce) giúp bài viết không bị khô khan và chứng minh được khả năng áp dụng lý thuyết vào thực tiễn.
+    \item \textbf{Điểm tốt:} Em đặc biệt tâm đắc với phần phân tích \textbf{AI Service}. Thay vì chỉ làm một chatbot thông thường, em đã lồng ghép được kỹ thuật \textbf{RAG (Retrieval-Augmented Generation)} kết hợp với cơ sở dữ liệu đồ thị \textbf{Neo4j}. 
+\end{itemize}
+
+\section*{2. Về kỹ thuật và triển khai hệ thống}
+\begin{itemize}
+    \item \textbf{Thành quả:} Em đã thiết kế thành công kiến trúc cho 5 Microservices riêng biệt, có cơ sở dữ liệu riêng (Polyglot Persistence: MySQL, PostgreSQL, Neo4j) và giao tiếp qua API Gateway. Việc Docker hóa toàn bộ hệ thống giúp quá trình triển khai trở nên chuyên nghiệp và dễ dàng hơn.
+    \item \textbf{Hạn chế (Tự phê bình):} 
+    \begin{itemize}
+        \item \textbf{Cơ chế xác thực:} Hiện tại em mới chỉ dừng lại ở mức xác thực dựa trên Credentials (tài khoản/mật khẩu) tại từng Service. Đây là điểm yếu về mặt bảo mật nếu đưa vào môi trường thực tế. Lẽ ra em nên triển khai JWT tập trung tại API Gateway để đảm bảo tính an toàn và chuẩn hóa cao hơn.
+        \item \textbf{Xử lý giao dịch:} Bài viết có nhắc đến Saga Pattern nhưng trong phần triển khai kỹ thuật, em chưa thể hiện rõ cách xử lý các giao dịch phân tán phức tạp (ví dụ: khi đặt hàng lỗi thì hoàn tiền/kho như thế nào).
+        \item \textbf{Giám sát:} Hệ thống còn thiếu các thành phần quan trọng của Microservices như Log tập trung (ELK Stack) hay Tracing (Jaeger) để theo dõi luồng dữ liệu giữa các Service.
+    \end{itemize}
+\end{itemize}
+
+\section*{3. Đánh giá chung}
+Nhìn chung, em đánh giá mình đã hoàn thành được khoảng 90\% mục tiêu đề ra. Hệ thống đã chạy được các luồng cơ bản và thể hiện được tư duy thiết kế hướng tên miền. Những thiếu sót về bảo mật và giám sát sẽ là bài học quý giá để em hoàn thiện hơn trong các dự án tiếp theo.
+
+\textbf{Điểm tự đánh giá: 8/10}
 
 \end{document}
